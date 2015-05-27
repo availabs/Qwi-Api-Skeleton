@@ -9,7 +9,11 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-  'post /qwi/*'    : 'EmploymentController.test',
+  //'post /qwi/*'    : 'EmploymentController.test',
+  'post /qwi/waterline/*'                 : 'EmploymentController.waterline_wrapper',
+  'get  /employment'                     : 'EmploymentController.employment_by_geography',
+  'get  /employment/geography/:geography' : 'EmploymentController.employment_by_geography',
+  'get  /employment_for_state_by_county_by_naics/state/:geography' : 'EmploymentController.employment_for_state_by_county_by_naics',
 
   //'/'                        : 'ApiSkeletonController.info',
   //'/info'                    : 'ApiSkeletonController.info',

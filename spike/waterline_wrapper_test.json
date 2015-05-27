@@ -1,0 +1,1 @@
+{"sum":"emp", "sort":{ "geography": "asc" }, "where":{"year": 2004,"quarter": 1,"sex": {"!": "0" },"education": {"!": "E0"},"industry": {"!": "00" }},"groupBy": ["geography", "sex", "education", "industry"]}
