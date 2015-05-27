@@ -9,16 +9,31 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-  //'post /qwi/*'    : 'EmploymentController.test',
-  'post /qwi/waterline/*'                 : 'EmploymentController.waterline_wrapper',
-  'get  /employment'                     : 'EmploymentController.employment_by_geography',
-  'get  /employment/geography/:geography' : 'EmploymentController.employment_by_geography',
-  'get  /employment_for_state_by_county_by_naics/state/:geography' : 'EmploymentController.employment_for_state_by_county_by_naics',
+  'post /qwi/waterline':
+            'EmploymentController.waterline',
 
-  //'/'                        : 'ApiSkeletonController.info',
-  //'/info'                    : 'ApiSkeletonController.info',
-  //'/employment'              : 'EmploymentController.info',
-  //'/employment/info'         : 'EmploymentController.info',
-  //'/employment/latest_total' : 'EmploymentController.latest_total'
+  'get  /employment':
+            'EmploymentController.employment_by_geography',
 
+  'get  /employment/geography/:geography':
+            'EmploymentController.employment_by_geography',
+
+  'get  /employment_for_counties/state/:geography':
+            'EmploymentController.employment_for_counties_in_state',
+
+  'get  /employment_for_counties/state/:geography/industry/:industry':
+            'EmploymentController.employment_for_counties_in_state',
+
+  'get  /employment_for_counties/state/:geography/industry/:industry/education/:education':
+            'EmploymentController.employment_for_counties_in_state',
+
+  'get  /employment_for_counties/state/:geography/industry/:industry/firmage/:firmage':
+            'EmploymentController.employment_for_counties_in_state',
+
+  'get  /new_hires_by_sector/county/:geography':
+            'EmploymentController.new_hires_by_sector',
+
+
+  '/'     : 'ApiSkeletonController.info',
+  '/info' : 'ApiSkeletonController.info',
 };
