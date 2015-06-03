@@ -1,1 +1,14 @@
-{ "unused": false }
+{ 
+    "strict" : true,
+
+    "undef"  : true,
+    "unused" : true,
+
+    "curly"  : true,
+    "eqeqeq" : true,
+
+    "predef" : [ "document" ],
+
+    "node"   : true,
+    "browserify" : true
+}
