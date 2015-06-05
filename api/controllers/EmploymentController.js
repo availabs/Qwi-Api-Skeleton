@@ -54,7 +54,43 @@ module.exports = {
                   where  : aggregationDefaults,
                 };
 
+        query.where.geo_level = 'C';
         query.where.geography = { 'startsWith' : stateGeoCode };
+
+        se_fa_gc_ns_op_u.find(query)
+                        .exec(function (error, data) {
+                            console.log("+++> Responding.");
+
+                            if (error) { res.send(500, error); }
+                            else { res.json(data); }
+                        });
+    },
+
+
+
+    'measure_by_quarter_for_geography': function (req, res) {
+
+        console.log("++> measure_by_quarter_for_geography");
+
+        var geography = req.params.geography && req.params.geography.replace(/ /g,''),
+            measure   = req.params.measure,
+            query;
+
+
+        if (!geography || !measure) {
+            res.send(500, {'ERROR': "Must specify the QWI measure and the 2-digit state geography code."});
+            return;
+        } 
+
+        query = { select : [ 'geography', 'year', 'quarter', req.params.measure ],
+                  where  : aggregationDefaults,
+                };
+
+        query.where.geography = geography;
+
+
+        console.log(query);
+
 
         se_fa_gc_ns_op_u.find(query)
                         .exec(function (error, data) {

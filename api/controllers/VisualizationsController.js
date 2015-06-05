@@ -7,4 +7,9 @@ module.exports = {
         res.view({});
     },
 
+    'measure_by_quarter_for_geography': function (req, res) {
+        console.log('== View ==>> measure_by_quarter_for_geography');
+        res.view({});
+    },
+
 };

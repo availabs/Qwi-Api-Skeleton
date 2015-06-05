@@ -2,4 +2,10 @@ Integrate watchify
 
 Implement a way to import the labels automatically.
 
+Consistent naming for React files.
+
+Integrate ReactRouter and Bootstrap.
+
+Labels data probably should have their own store rather than be bundled up with browserfy.
+
 

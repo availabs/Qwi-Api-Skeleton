@@ -8,7 +8,7 @@ var d3 = require('d3');
 
 module.exports = {
 
-    'getTotalQuarterlyMeasureForAllCountiesInState' : function (query) {
+    'getMeasureForAllCountiesInState' : function (query) {
 
         console.log('Server query result requested.');
 
@@ -23,7 +23,29 @@ module.exports = {
 
             if (err) { throw err; }
             
-            ServerActionCreators.handleQueryResult({ query: query, data: data });
+            query.data = data;
+            ServerActionCreators.handleQueryResult(query);
+        });
+
+    },
+
+    'getMeasureByQuarterForGeography' : function (query) {
+
+        console.log('Server query result requested.');
+
+        var url = '/measure/'      +
+                  query.measure    +
+                  '/geography/'    +
+                  query.geography;
+
+        d3.json(url, function (error, data) {
+
+            console.log('Server query result obtained.');
+
+            if (error) { console.error(error); }
+            
+            query.data = data;
+            ServerActionCreators.handleQueryResult(query);
         });
 
     },

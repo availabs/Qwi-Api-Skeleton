@@ -1,6 +1,6 @@
-'use strict';
-
 /* jshint unused: true */
+
+'use strict';
 
 
 
@@ -8,6 +8,7 @@ var React            = require('react'),
     Selector         = require('../components/selector/Selector.react.js'),
     geography_labels = require('../../data/labels/geography.js'),
     theStore  = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
+    LineChart = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react.js'),
     _                = require('lodash');
 
 
@@ -15,7 +16,7 @@ var noOp = function(){};
 
 
 
-var NewHiresByCountyForState = React.createClass ({
+var MeasureByQuarterForGeography = React.createClass ({
 
     'getInitialState': function () {
         var state_labels = _.pick(geography_labels, function(v, k) { return k.length === 2; });
@@ -38,7 +39,7 @@ var NewHiresByCountyForState = React.createClass ({
 
     '_queryDataStore' : function (state) {
         var query = { geography: state, measure: 'hira' },
-            data  = theStore.getMeasureForAllCountiesInState(query);
+            data  = theStore.getMeasureByQuarterForGeography(query);
 
         if (data) { 
             console.log(data); 
@@ -46,33 +47,56 @@ var NewHiresByCountyForState = React.createClass ({
         }
         else { 
             console.log('Waiting on data'); 
+            console.log(data);
             this.setState({ select: [state], pendingQuery: query, data:  null });
         }
     },
 
     '_handleResultReadyEvent' : function (eventPayload) {
-        console.log("Gots data!");
-        console.log(eventPayload);
-        console.log(this.state.pendingQuery);
-
         if (eventPayload === this.state.pendingQuery) {
             this.setState({ pendingQuery: null, data: eventPayload.data });
             console.log(eventPayload.data);
         }
     },
 
+/*========================================================================
+ *
+ * Props:
+ *          width
+ *          height
+ *          margin.top, margin.right, margin.bottom, margin.left
+ *          data
+ *          measure
+ *          measure_label
+ *
+ *========================================================================*/
     render : function () {
-        return (<div>
-                    <Selector
-                        select    = { this._queryDataStore }
+        var chartMargins = { top: 50, right: 50, bottom: 30, left: 75 };
+
+        console.log("=== Render ===");
+
+        return (<div className="page" >
+
+                    <Selector // State Selector
+                        select    = { this.state.pendingQuery ? noOp : this._queryDataStore }
                         deselect  = { noOp }
                         selection = { this.state.selection }
                         selected  = { this.state.selected }
                         title     = { "States" }
                     />
+
+                    <LineChart
+                        width         = { 960 - chartMargins.left - chartMargins.right }
+                        height        = { 500 - chartMargins.top - chartMargins.bottom }
+                        margin        = { chartMargins }
+                        data          = { this.state.data }
+                        measure       = { 'hira' }
+                        measure_label = { 'Hires, All' }
+                    />
+                        
                 </div>);
     }
 });
 
-React.render (<NewHiresByCountyForState/>, document.getElementById('container'));
+React.render (<MeasureByQuarterForGeography/>, document.getElementById('container'));
 

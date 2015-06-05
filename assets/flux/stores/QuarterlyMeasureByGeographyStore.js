@@ -21,7 +21,7 @@ var _data = {};
 
 
 function _stringifyQueryObject (qObj) {
-    return qObj.geography + '_' + qObj.measure;
+    return qObj.description + '_' + qObj.geography + '_' + qObj.measure;
 }
 
 
@@ -40,26 +40,39 @@ var thisStore = assign({}, EventEmitter.prototype, {
         this.removeListener(QUERY_REPONSE_READY, callback);
     },
 
-
-    'query': function (query) {
+    '_handleQuery': function (query) {
+    
         var stringifiedQuery = _stringifyQueryObject(query);
-
-        console.log("==> theStore.query()");
-
+        
         if (_data[stringifiedQuery]) {
+            console.log('Using stored data.');
             return _data[stringifiedQuery];
         } else {
-            SailsWebApi.getTotalQuarterlyMeasureForAllCountiesInState(query);
+            console.log('Retrieving data from the server.');
+            SailsWebApi[query.description](query);
             return null;
         }
     },
 
-    'handleQueryResult': function (queryResult) {
-        var stringifiedQuery = _stringifyQueryObject(queryResult.query);
+    'getMeasureForAllCountiesInState': function (query) {
+        query.description = 'getMeasureForAllCountiesInState';
 
-        _data[stringifiedQuery] = queryResult.data;
+        return this._handleQuery(query);
+    },
 
-        this.emitQueryReponseReadyEvent(queryResult);
+    'getMeasureByQuarterForGeography': function (query) {
+        query.description = 'getMeasureByQuarterForGeography';
+
+        return this._handleQuery(query);
+    },
+
+
+    'handleQueryResult': function (query) {
+        var stringifiedQuery = _stringifyQueryObject(query);
+
+        _data[stringifiedQuery] = query.data;
+
+        this.emitQueryReponseReadyEvent(query);
     },
 
 });
