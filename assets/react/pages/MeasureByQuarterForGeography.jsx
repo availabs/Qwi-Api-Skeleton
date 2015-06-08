@@ -3,13 +3,13 @@
 'use strict';
 
 
+var React                = require('react'),
+    SingleButtonDropdown = require('../components/SingleButtonDropdown.react.jsx'),
+    geography_labels     = require('../../data/labels/geography.js'),
+    theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
+    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react.jsx'),
+    _                    = require('lodash');
 
-var React            = require('react'),
-    Selector         = require('../components/selector/Selector.react.js'),
-    geography_labels = require('../../data/labels/geography.js'),
-    theStore  = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
-    LineChart = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react.js'),
-    _                = require('lodash');
 
 
 var noOp = function(){};
@@ -37,18 +37,18 @@ var MeasureByQuarterForGeography = React.createClass ({
         return !nextState.pendingQuery; 
     },
 
-    '_queryDataStore' : function (state) {
-        var query = { geography: state, measure: 'hira' },
+    '_queryDataStore' : function (stateGeoCode) {
+        var query = { geography: stateGeoCode, measure: 'hira' },
             data  = theStore.getMeasureByQuarterForGeography(query);
 
         if (data) { 
             console.log(data); 
-            this.setState({ selected: [state], pendingQuery: null, data: data });
+            this.setState({ selected: [stateGeoCode], pendingQuery: null, data: data });
         }
         else { 
             console.log('Waiting on data'); 
             console.log(data);
-            this.setState({ select: [state], pendingQuery: query, data:  null });
+            this.setState({ select: [stateGeoCode], pendingQuery: query, data:  null });
         }
     },
 
@@ -77,7 +77,7 @@ var MeasureByQuarterForGeography = React.createClass ({
 
         return (<div className="page" >
 
-                    <Selector // State Selector
+                    <SingleButtonDropdown // State SingleButtonDropdown
                         select    = { this.state.pendingQuery ? noOp : this._queryDataStore }
                         deselect  = { noOp }
                         selection = { this.state.selection }

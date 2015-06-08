@@ -12,13 +12,13 @@ var React = require('react');
 *       label  : The label for the item.
 *
 *=====================================================*/
-var SelectorListItem = React.createClass ({
+var MenuItem = React.createClass ({
 
     toggleItem: function () { this.props.toggle(this.props.item); },
 
     render: function () {
         return (
-            <li className = { (this.props.selected ? 'selected' : 'unselected') + 'SelectorListItem' }
+            <li //className = { this.props.selected ? 'disabled' : 'active' }
                 onClick   = { this.toggleItem } 
                 key       = { this.props.key } > 
 
@@ -29,5 +29,5 @@ var SelectorListItem = React.createClass ({
 });
 
 
-module.exports = SelectorListItem;
+module.exports = MenuItem;
 

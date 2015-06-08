@@ -1,8 +1,8 @@
 'use strict';
 
 
-var React            = require('react'),
-    SelectorListItem = require('./SelectorListItem.react.js');
+var React    = require('react'),
+    MenuItem = require('./MenuItem.react.jsx');
 
 
 /*=====================================================
@@ -14,16 +14,17 @@ var React            = require('react'),
 *       selected  : Array of selected items. (The keys from 'selection'.)
 *
 *=====================================================*/
-var SelectorList = React.createClass ({
+var DropdownMenu = React.createClass ({
 
-    _generateListItems: function () {
+    _generateMenuItems: function () {
         var props = this.props;
 
         return Object.keys(props.selection).map(function (item, i) {
 
             var isSelected = props.selected.indexOf(item) !== -1;
+            console.log(props.selection[item]);
 
-            return (<SelectorListItem
+            return (<MenuItem
                         key        = { i }
                         toggle     = { isSelected ? props.deselect : props.select }
                         item       = { item }
@@ -34,11 +35,12 @@ var SelectorList = React.createClass ({
     },
 
     render: function () {
-        var classes = 'selectorList ' +  (this.props.active ? 'active' : 'inactive');
 
-        return ( <ul className={ classes }> { this._generateListItems() } </ul> );
+        return (<ul className="dropdown-menu" role="menu"> 
+                    { this._generateMenuItems() } 
+                </ul> );
     },
 });
 
 
-module.exports = SelectorList;
+module.exports = DropdownMenu;

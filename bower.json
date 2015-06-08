@@ -1,0 +1,20 @@
+{
+  "name": "Qwi-Api-Skeleton",
+  "version": "0.0.0",
+  "homepage": "https://github.com/availabs/Qwi-Api-Skeleton",
+  "authors": [
+    "Paul Tomchik <pauljtomchik@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "assets/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.4"
+  }
+}

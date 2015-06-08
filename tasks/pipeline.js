@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * grunt/pipeline.js
  *
@@ -15,7 +17,8 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
-  'styles/**/*.css'
+   'styles/white/application.css',
+    'styles/**/*.css',
 ];
 
 
@@ -24,14 +27,16 @@ var cssFilesToInject = [
 var jsFilesToInject = [
   
   // Load sails.io before everything else
-  'js/dependencies/sails.io.js',
+  //'js/dependencies/sails.io.js',
 
   // Dependencies like jQuery, or Angular are brought in here
-  'js/dependencies/**/*.js',
+  //'js/dependencies/**/*.js',
+  'bower_components/jquery/dist/jquery.js',
+  'bower_components/bootstrap/dist/js/bootstrap.js',
 
   // All of the rest of your client-side js files
   // will be injected here in no particular order.
-  'js/**/*.js'
+  //'js/**/*.js'
 ];
 
 
