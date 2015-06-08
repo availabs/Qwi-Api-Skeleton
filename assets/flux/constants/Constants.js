@@ -9,7 +9,7 @@ module.exports = {
     }),
 
     EventTypes: keyMirror({
-        QUERY_REPONSE_READY : null,
+        QUERY_RESPONSE_READY : null,
     }),
 
 };

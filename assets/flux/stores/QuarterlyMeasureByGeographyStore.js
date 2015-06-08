@@ -12,7 +12,7 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
 
 var ActionTypes = Constants.ActionTypes;
 
-var QUERY_REPONSE_READY = Constants.EventTypes.QUERY_REPONSE_READY;
+var QUERY_RESPONSE_READY = Constants.EventTypes.QUERY_RESPONSE_READY;
 
 
 
@@ -28,16 +28,16 @@ function _stringifyQueryObject (qObj) {
 
 var thisStore = assign({}, EventEmitter.prototype, {
     
-    'emitQueryReponseReadyEvent': function(queryResult) {
-        this.emit(QUERY_REPONSE_READY, queryResult);
+    'emitQueryResponseReadyEvent': function(queryResult) {
+        this.emit(QUERY_RESPONSE_READY, queryResult);
     },
 
     'registerQueryResultReadyListener': function(callback) {
-        this.on(QUERY_REPONSE_READY, callback);
+        this.on(QUERY_RESPONSE_READY, callback);
     },
 
     'removeQueryResultReadyListener': function(callback) {
-        this.removeListener(QUERY_REPONSE_READY, callback);
+        this.removeListener(QUERY_RESPONSE_READY, callback);
     },
 
     '_handleQuery': function (query) {
@@ -72,7 +72,7 @@ var thisStore = assign({}, EventEmitter.prototype, {
 
         _data[stringifiedQuery] = query.data;
 
-        this.emitQueryReponseReadyEvent(query);
+        this.emitQueryResponseReadyEvent(query);
     },
 
 });
