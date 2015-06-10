@@ -9,7 +9,7 @@ var Logo = React.createClass({
 
 	render: function() {
 	    return (
-	    	<div className="logo">
+	    	<div>
 	    		<img src="/images/logo.png" style={{width:'120px'}} />
 	    	</div>
 	    );

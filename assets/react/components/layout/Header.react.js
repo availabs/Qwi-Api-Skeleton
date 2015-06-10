@@ -14,9 +14,19 @@ var Header = React.createClass({
     render: function() {
         return (
             <div className='page-header'>
-                <Logo />
-                <h1>Quarterly Workforce Indicators</h1>
-                <VizMenu routes={ this.props.routes } />
+                <div className='row'>
+                    <div className='col-sm-1'>
+                        <Logo />
+                    </div>
+                    <div className='col-sm-10'>
+                        <h1 className='text-center availGrey'>
+                            Quarterly Workforce Indicators
+                        </h1>
+                    </div>
+                    <div className='col-sm-1'>
+                        <VizMenu routes={ this.props.routes } />
+                    </div>
+                </div>
             </div>
         );
     }
