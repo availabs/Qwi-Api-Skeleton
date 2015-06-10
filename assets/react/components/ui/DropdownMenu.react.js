@@ -2,7 +2,7 @@
 
 
 var React    = require('react'),
-    MenuItem = require('./MenuItem.react.jsx');
+    MenuItem = require('./MenuItem.react');
 
 
 /*=====================================================
@@ -36,7 +36,7 @@ var DropdownMenu = React.createClass ({
 
     render: function () {
 
-        return (<ul className="dropdown-menu" role="menu"> 
+        return (<ul className='dropdown-menu' role='menu'> 
                     { this._generateMenuItems() } 
                 </ul> );
     },

@@ -5,7 +5,7 @@
 
 
 var React                = require('react'),
-    SingleButtonDropdown = require('../components/SingleButtonDropdown.react.jsx'),
+    SingleButtonDropdown = require('../components/ui/SingleButtonDropdown.react'),
     geography_labels     = require('../../data/labels/geography.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
     _                    = require('lodash');
@@ -62,7 +62,8 @@ var NewHiresByCountyForState = React.createClass ({
     },
 
     render : function () {
-        return (<div>
+        return (
+                <div>
                     <SingleButtonDropdown
                         select    = { this._queryDataStore }
                         deselect  = { noOp }
@@ -70,9 +71,11 @@ var NewHiresByCountyForState = React.createClass ({
                         selected  = { this.state.selected }
                         title     = { "States" }
                     />
-                </div>);
+                </div>
+        );
     }
 });
 
-React.render (<NewHiresByCountyForState/>, document.getElementById('container'));
 
+
+module.exports = NewHiresByCountyForState;

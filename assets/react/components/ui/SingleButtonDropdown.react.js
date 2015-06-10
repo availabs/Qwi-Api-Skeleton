@@ -2,7 +2,7 @@
 
 
 var React        = require('react'),
-    DropdownMenu = require('./DropdownMenu.react.jsx');
+    DropdownMenu = require('./DropdownMenu.react');
 
 
 /*=====================================================
@@ -28,7 +28,8 @@ var SingleButtonDropdown = React.createClass ( {
                         className="btn btn-default dropdown-toggle" 
                         data-toggle="dropdown" 
                         aria-expanded="false" >
-                        Action <span className="caret"></span>
+                            Action 
+                            <span className="caret"></span>
                 </button>
 
                 <DropdownMenu 

@@ -4,10 +4,10 @@
 
 
 var React                = require('react'),
-    SingleButtonDropdown = require('../components/SingleButtonDropdown.react.jsx'),
+    SingleButtonDropdown = require('../components/ui/SingleButtonDropdown.react'),
     geography_labels     = require('../../data/labels/geography.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
-    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react.jsx'),
+    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react'),
     _                    = require('lodash');
 
 
@@ -75,7 +75,8 @@ var MeasureByQuarterForGeography = React.createClass ({
 
         console.log("=== Render ===");
 
-        return (<div className="page" >
+        return (
+                <div className="page" >
 
                     <SingleButtonDropdown // State SingleButtonDropdown
                         select    = { this.state.pendingQuery ? noOp : this._queryDataStore }
@@ -94,9 +95,9 @@ var MeasureByQuarterForGeography = React.createClass ({
                         measure_label = { 'Hires, All' }
                     />
                         
-                </div>);
+                </div>
+        );
     }
 });
 
-React.render (<MeasureByQuarterForGeography/>, document.getElementById('container'));
-
+module.exports = MeasureByQuarterForGeography;
