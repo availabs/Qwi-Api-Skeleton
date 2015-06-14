@@ -4,7 +4,6 @@ module.exports.connections = {
     adapter: 'sails-postgresql',
     host: 'localhost',
     user: 'qwi_api',
-    //password: 'YOUR_POSTGRES_PASSWORD',
     database: 'qwi'
   }
 

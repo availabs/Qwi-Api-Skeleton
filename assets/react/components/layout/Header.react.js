@@ -12,8 +12,9 @@ var React   = require('react'),
 var Header = React.createClass({
 
     render: function() {
+
         return (
-            <div className='page-header'>
+            <div className='page-header noWrap'>
                 <div className='row'>
                     <div className='col-sm-1'>
                         <Logo />
@@ -31,5 +32,6 @@ var Header = React.createClass({
         );
     }
 });
+
 
 module.exports = Header;

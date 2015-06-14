@@ -13,15 +13,15 @@ var App = React.createClass({
 
     render: function() {
         return (
-            <div>
+            <div style={{'height': window.innerHeight}} className='noWrap'>
                 <Header routes={ this.props.routes }/>
-                <div className='container-fluid'>
-                    <RouteHandler />
-                </div>
+                <RouteHandler />
             </div>
         );
     },
 
 });
+
+
 
 module.exports = App;

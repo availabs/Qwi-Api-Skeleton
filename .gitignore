@@ -118,3 +118,5 @@ nbproject
 .node_history
 
 spike/
+
+./config/connections.js

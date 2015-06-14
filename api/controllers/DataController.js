@@ -82,7 +82,7 @@ module.exports = {
             return;
         } 
 
-        query = { select : [ 'geography', 'year', 'quarter', req.params.measure ],
+        query = { select : [ 'geography', 'year', 'quarter', measure ],
                   where  : aggregationDefaults,
                 };
 

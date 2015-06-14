@@ -21,11 +21,20 @@ var MeasureByQuarterLineChart = React.createClass({
 
 
     '_init' : function () {
-        var that = this;
+        var theSVG = React.findDOMNode(this.refs.theSVG),
+            that   = this;
     
-        this._x = d3.time.scale().range([0, this.props.width]);
+        var width  = theSVG.offsetWidth  - this.props.margin.right - this.props.margin.left,
+            height = this.props.height - this.props.margin.top   - this.props.margin.bottom;
 
-        this._y = d3.scale.linear().range([this.props.height, 0]);
+        console.log('MeasureByQuarterLineChart _init called.');
+        //console.log(theSVG);
+        //console.log(width);
+        //console.log(height);
+
+        this._x = d3.time.scale().range([0, width]);
+
+        this._y = d3.scale.linear().range([height, 0]);
 
 
         this._xAxis = d3.svg.axis().scale(this._x).orient("bottom");
@@ -44,10 +53,11 @@ var MeasureByQuarterLineChart = React.createClass({
 
     '_update' : function (nextProps) {
 
-        var data    = nextProps.data,
+        var data    = nextProps.data || [],
             measure = nextProps.measure,
-            svg     = d3.select(React.findDOMNode(this.refs.theG)),
-            that    = this;
+            theSVG  = d3.select(React.findDOMNode(this.refs.theSVG)),
+            that    = this,
+            theG;
 
         var quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
 
@@ -59,17 +69,21 @@ var MeasureByQuarterLineChart = React.createClass({
 
 
         // Clear the Visualization.
-        svg.selectAll("*").remove();
+        theSVG.selectAll("*").remove();
 
         this._x.domain(d3.extent(data, function(d) { return d.date; }));
         this._y.domain(d3.extent(data, function(d) { return d[measure]; }));
 
-        svg.append("g")
+        theG = theSVG.append('g')
+                     .style('width',  theSVG.offsetWidth)
+                     .style('height', nextProps.height - nextProps.margin.top - nextProps.margin.bottom);
+
+        theG.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + nextProps.height + ")")
             .call(this._xAxis);
 
-        svg.append("g")
+        theG.append("g")
             .attr("class", "y axis")
             .call(this._yAxis)
             .append("text")
@@ -79,39 +93,41 @@ var MeasureByQuarterLineChart = React.createClass({
             .style("text-anchor", "end")
             .text(nextProps.measure_label);
 
-        svg.append("path")
+        theG.append("path")
             .datum(data)
             .attr("class", "line")
             .attr("d", this._line);
     },
 
 
-    'componentDidMount' : function () { this._init(); },
+    'componentDidMount' : function () { 
+        console.log('MeasureByQuarterLineChart didMount.'); 
+        this._init(); 
+    },
+
 
     'shouldComponentUpdate' : function (nextProps, nextState) {
-        if (this.props.data !== nextProps.data) {
+        var heightChanged = (this.props.height !== nextProps.height);
+
+        if (heightChanged) {
+            this._init(); 
+        }
+
+        if (heightChanged || (this.props.data !== nextProps.data)) {
             this._update(nextProps); 
         }
 
-        return false;
+        return heightChanged;
     },
 
-    'render' : function () {
-        return (
-            <svg width  = { this.props.width +
-                            this.props.margin.left +
-                            this.props.margin.right }
-                 height = { this.props.height +
-                            this.props.margin.top +
-                            this.props.margin.bottom } 
-                className = 'chart' >
 
-                 <g ref       = 'theG'
-                    transform = { 'translate(' +
-                                    this.props.margin.left +
-                                    "," +
-                                    this.props.margin.top +
-                                    ")"} />
+    'render' : function () {
+
+        return (
+            <svg width     = '100%'
+                 height    = { this.props.height }
+                 ref       = 'theSVG'
+                 className = 'chart' >
             </svg>
         );
     },

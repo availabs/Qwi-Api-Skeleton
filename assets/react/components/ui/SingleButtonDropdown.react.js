@@ -28,7 +28,7 @@ var SingleButtonDropdown = React.createClass ( {
                         className="btn btn-default dropdown-toggle" 
                         data-toggle="dropdown" 
                         aria-expanded="false" >
-                            Action 
+                            { this.props.title } 
                             <span className="caret"></span>
                 </button>
 

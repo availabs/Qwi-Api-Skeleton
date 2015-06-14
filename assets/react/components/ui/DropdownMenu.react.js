@@ -22,7 +22,6 @@ var DropdownMenu = React.createClass ({
         return Object.keys(props.selection).map(function (item, i) {
 
             var isSelected = props.selected.indexOf(item) !== -1;
-            console.log(props.selection[item]);
 
             return (<MenuItem
                         key        = { i }
