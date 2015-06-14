@@ -14,9 +14,6 @@ var React                = require('react'),
 
 
 
-var noOp = function(){};
-
-
 // We need to see if there have been any changes in the window size or layout.
 // We need the reactivator to be a Singleton. We can't have tangled async code.
 // 
@@ -119,11 +116,6 @@ var MeasureByQuarterForGeography = React.createClass ({
     },
 
 
-    'shouldComponentUpdate' : function (nextProps, nextState) {
-        return !nextState.pendingQuery; 
-    },
-
-
     'componentWillUnmount': function () {
         theStore.removeQueryResultReadyListener(this._handleResultReadyEvent);
         window.removeEventListener('resize', this._reactivator);
@@ -182,8 +174,8 @@ var MeasureByQuarterForGeography = React.createClass ({
 
             statesSelector = (
                 <SingleButtonDropdown 
-                    select    = { this.state.pendingQuery ?  noOp : this._selectState }
-                    deselect  = { noOp }
+                    select    = { this.state.pendingQuery ?  void(0) : this._selectState }
+                    deselect  = { void(0) }
                     selection = { this.state.geographiesSelection }
                     selected  = { this.state.geographiesSelected  }
                     title     = { 'States' }
@@ -192,8 +184,8 @@ var MeasureByQuarterForGeography = React.createClass ({
 
             measureSelector = (
                 <SingleButtonDropdown 
-                    select    = { this.state.pendingQuery ?  noOp : this._selectMeasure }
-                    deselect  = { noOp }
+                    select    = { this.state.pendingQuery ?  void(0) : this._selectMeasure }
+                    deselect  = { void(0) }
                     selection = { this.state.measureSelection }
                     selected  = { this.state.measuresSelected }
                     title     = { 'QWI Measures' }

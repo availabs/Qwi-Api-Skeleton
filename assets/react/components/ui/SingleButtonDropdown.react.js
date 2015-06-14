@@ -22,14 +22,19 @@ var SingleButtonDropdown = React.createClass ( {
     },
 
     'render': function () {
+        console.log(this.props.select);
+
         return ( 
-            <div className="btn-group">
-                <button type="button" 
-                        className="btn btn-default dropdown-toggle" 
-                        data-toggle="dropdown" 
-                        aria-expanded="false" >
+            <div className = 'btn-group'>
+
+                <button type          = 'button'
+                        className     = { 'btn btn-default dropdown-toggle' + (this.props.select ? '' : ' disabled') }
+                        data-toggle   = 'dropdown'
+                        aria-expanded = 'false' >
+
                             { this.props.title } 
-                            <span className="caret"></span>
+                            <span className='caret'></span>
+
                 </button>
 
                 <DropdownMenu 

@@ -18,11 +18,17 @@ var MenuItem = React.createClass ({
 
     render: function () {
         return (
-            <li //className = { this.props.selected ? 'disabled' : 'active' }
-                onClick   = { this.toggleItem } 
-                key       = { this.props.key } > 
+            <li onClick = { this.toggleItem }
+                role    = "presentation"
+                key     = { this.props.key } >
 
-                    { this.props.label }
+                    <a role="menuitem" 
+                       tabindex="-1" 
+                       href={ undefined }> 
+                        
+                            { this.props.label }
+
+                    </a>
             </li>
         );
     }
