@@ -61,8 +61,13 @@ body {
 }
 
 
+.chart-title {
+    color : #808080;
+}
+
+
 .chart {
-    background   : linear-gradient(to right, rgba(0,0,0,10), rgba(0,0,0,50), rgba(0,0,0,10));
+    background   : linear-gradient(to right, rgba(191,191,191,10), rgba(191,191,191,50), rgba(191,191,191,10));
     margin-left  : auto;
     margin-right : auto;
     color        : #0E374D;

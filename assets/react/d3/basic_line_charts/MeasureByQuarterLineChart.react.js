@@ -76,11 +76,12 @@ var MeasureByQuarterLineChart = React.createClass({
 
         theG = theSVG.append('g')
                      .style('width',  theSVG.offsetWidth)
-                     .style('height', props.height - props.margin.top - props.margin.bottom);
+                     .style('height', props.height - props.margin.top - props.margin.bottom)
+                     .attr("transform", "translate(" + props.margin.left + "," + props.margin.top + ")");
 
         theG.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + props.height + ")")
+            .attr("transform", "translate(0," + (props.height - props.margin.bottom - props.margin.top) + ")")
             .call(this._xAxis);
 
         theG.append("g")
@@ -125,7 +126,9 @@ var MeasureByQuarterLineChart = React.createClass({
 
         return (
             <div>
-                <h1>{title}</h1>
+                <h3 className='chart-title' >
+                        { title }
+                </h3>
                 <svg width     = '100%'
                      height    = { props.height }
                      ref       = 'theSVG'
