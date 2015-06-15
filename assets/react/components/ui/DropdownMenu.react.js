@@ -35,8 +35,11 @@ var DropdownMenu = React.createClass ({
 
     render: function () {
 
-        return (<ul className='dropdown-menu dropdown-menu-right scrollable-menu' 
-                    role='menu'> 
+        return (<ul className = { 'dropdown-menu ' +
+                                  'dropdown-menu-' + (this.props.alignRight ? 'right ' : 'left ') +
+                                  'scrollable-menu ' }
+
+                    role      = 'menu' > 
 
                         { this._generateMenuItems() } 
                 </ul> );

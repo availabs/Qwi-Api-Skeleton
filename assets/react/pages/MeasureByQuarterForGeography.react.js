@@ -72,10 +72,22 @@ var MeasureByQuarterForGeography = React.createClass ({
 
 
     '_init': function() {
+
         this._reactivator = newReactivator((function(spareHeight) { 
-                                    this.setState({ vizHeight: (this.state.vizHeight + spareHeight) }); 
-                                }).bind(this) // jshint ignore:line
-                            );
+
+                var vizAreaBottom = React.findDOMNode(this.refs.vizArea)
+                                         .getBoundingClientRect().bottom - 1, 
+
+                    sideBarTop    = React.findDOMNode(this.refs.sideBar)
+                                         .getBoundingClientRect().top;
+
+                this.setState({ 
+                    vizHeight: (this.state.vizHeight + spareHeight),
+                    isStacked: (vizAreaBottom <= sideBarTop),
+                }); 
+
+            }).bind(this) // jshint ignore:line
+        );
     },
     
 
@@ -94,6 +106,7 @@ var MeasureByQuarterForGeography = React.createClass ({
              data            : null,
 
              vizHeight       : 1,
+             isStacked       : undefined,
         };
     },
 
@@ -174,24 +187,29 @@ var MeasureByQuarterForGeography = React.createClass ({
 
             statesSelector = (
                 <SingleButtonDropdown 
-                    select    = { this.state.pendingQuery ?  void(0) : this._selectState }
-                    deselect  = { void(0) }
-                    selection = { this.state.state_labels }
-                    selected  = { this.state.stateSelected }
-                    title     = { 'States' }
+                    select     = { this.state.pendingQuery ?  void(0) : this._selectState }
+                    deselect   = { void(0) }
+                    selection  = { this.state.state_labels }
+                    selected   = { this.state.stateSelected }
+                    title      = { 'States' }
+                    dropUp     = { this.state.isStacked }
+                    alignRight = { !this.state.isStacked }
                 />
             ),
 
             measureSelector = (
                 <SingleButtonDropdown 
-                    select    = { this.state.pendingQuery ?  void(0) : this._selectMeasure }
-                    deselect  = { void(0) }
-                    selection = { this.state.measure_labels }
-                    selected  = { this.state.measureSelected }
-                    title     = { 'QWI Measures' }
+                    select     = { this.state.pendingQuery ?  void(0) : this._selectMeasure }
+                    deselect   = { void(0) }
+                    selection  = { this.state.measure_labels }
+                    selected   = { this.state.measureSelected }
+                    title      = { 'QWI Measures' }
+                    dropUp     = { this.state.isStacked }
+                    alignRight = { !this.state.isStacked }
                 />
                     
             );
+
 
 
         return (
@@ -212,7 +230,7 @@ var MeasureByQuarterForGeography = React.createClass ({
                             />
                         </div>
                         
-                        <div className='col-md-1'>
+                        <div ref='sideBar' className='col-md-1'>
                             <SimpleSideBar
                                 selectors = { [statesSelector, measureSelector] }
                             />
