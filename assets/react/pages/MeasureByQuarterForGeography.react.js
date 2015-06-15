@@ -1,5 +1,3 @@
-/* jshint unused: true */
-
 'use strict';
 
 
@@ -10,11 +8,11 @@ var React                = require('react'),
     measure_labels       = require('../../data/labels/measures.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
     LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react'),
-    _                    = require('lodash');
+    lodash               = require('lodash');
 
 
 
-// We need to see if there have been any changes in the window size or layout.
+// Determines whether there have been any changes in the window size or layout.
 // We need the reactivator to be a Singleton. We can't have tangled async code.
 // 
 //  Params:
@@ -82,20 +80,20 @@ var MeasureByQuarterForGeography = React.createClass ({
     
 
     'getInitialState': function () {
-        var state_labels = _.pick(geography_labels, function(v, k) { return k.length === 2; });
 
+        var state_labels = lodash.pick(geography_labels, function(v, k) { return k.length === 2; });
 
         return { 
-                 geographiesSelection : state_labels,
-                 geographiesSelected  : [],
+             state_labels    : state_labels,
+             measure_labels  : measure_labels,
 
-                 measureSelection     : measure_labels,
-                 measuresSelected     : [],
+             stateSelected   : null,
+             measureSelected : null,
 
-                 pendingQuery         : null,
-                 data                 : null,
+             pendingQuery    : null,
+             data            : null,
 
-                 vizHeight            : 1,
+             vizHeight       : 1,
         };
     },
 
@@ -104,10 +102,9 @@ var MeasureByQuarterForGeography = React.createClass ({
         this._init();
 
         window.addEventListener('resize', this._reactivator);
+        this._reactivator('didMount');
 
         theStore.registerQueryResultReadyListener(this._handleResultReadyEvent);
-
-        this._reactivator('didMount');
     },
 
     
@@ -124,22 +121,22 @@ var MeasureByQuarterForGeography = React.createClass ({
 
 
     '_selectState' : function (stateGeoCode) {
-        if (this.state.measuresSelected.length) {
+        if (this.state.measureSelected) {
             this._queryDataStore({
                 geography : stateGeoCode,
-                measure   : this.state.measuresSelected[0],
+                measure   : this.state.measureSelected,
             });
-        } else { this.setState({ geographiesSelected: [stateGeoCode] }) ; }
+        } else { this.setState({ stateSelected: stateGeoCode }); }
     },
 
 
     '_selectMeasure' : function (measure) {
-        if (this.state.geographiesSelected.length) {
+        if (this.state.stateSelected) {
             this._queryDataStore({
-                geography : this.state.geographiesSelected[0],
+                geography : this.state.stateSelected,
                 measure   : measure,
             });
-        } else { this.setState({ measuresSelected: [measure] }) ; }
+        } else { this.setState({ measureSelected: measure }); }
     },
 
 
@@ -147,37 +144,40 @@ var MeasureByQuarterForGeography = React.createClass ({
     '_queryDataStore' : function (query) {
         var data = theStore.getMeasureByQuarterForGeography(query);
 
-        console.log(query);
-
         this.setState ({
-            geographiesSelected : [query.geography], 
-            measuresSelected    : [query.measure],
-            pendingQuery        : data ? null : query,
-            data                : data 
+            stateSelected   : query.geography,
+            measureSelected : query.measure,
+            pendingQuery    : data ? null : query,
+            data            : data
         });
     },
 
 
     '_handleResultReadyEvent' : function (eventPayload) {
         if (eventPayload === this.state.pendingQuery) {
-            this.setState({ pendingQuery: null, data: eventPayload.data });
-            console.log(eventPayload.data);
+            this.setState({ 
+                pendingQuery: null, 
+                data: eventPayload.data 
+            });
         }
     },
 
 
-
-
     render : function () {
 
-        var chartMargins = { top: 50, right: 50, bottom: 30, left: 75, },
+        var chartMargins = { 
+                top: 50, 
+                right: 50, 
+                bottom: 30, 
+                left: 75, 
+            },
 
             statesSelector = (
                 <SingleButtonDropdown 
                     select    = { this.state.pendingQuery ?  void(0) : this._selectState }
                     deselect  = { void(0) }
-                    selection = { this.state.geographiesSelection }
-                    selected  = { this.state.geographiesSelected  }
+                    selection = { this.state.state_labels }
+                    selected  = { this.state.stateSelected }
                     title     = { 'States' }
                 />
             ),
@@ -186,23 +186,29 @@ var MeasureByQuarterForGeography = React.createClass ({
                 <SingleButtonDropdown 
                     select    = { this.state.pendingQuery ?  void(0) : this._selectMeasure }
                     deselect  = { void(0) }
-                    selection = { this.state.measureSelection }
-                    selected  = { this.state.measuresSelected }
+                    selection = { this.state.measure_labels }
+                    selected  = { this.state.measureSelected }
                     title     = { 'QWI Measures' }
                 />
                     
             );
 
+
         return (
-                <div className='container' style={{'background-color':'maroon'}}>
+                <div className='container' >
                     <div className='row top-buffer'>
                         <div ref='vizArea' className='col-md-11'>
                             <LineChart
-                                height        = { this.state.vizHeight }
-                                margin        = { chartMargins }
-                                data          = { this.state.data }
-                                measure       = { this.state.measuresSelected.length ? this.state.measuresSelected[0] : null }
-                                measure_label = { this.state.measuresSelected.length ? measure_labels[this.state.measuresSelected[0]] : null }
+                                height         = { this.state.vizHeight }
+                                margin         = { chartMargins }
+
+                                data           = { this.state.data }
+
+                                entity_id      = { this.state.stateSelected }
+                                measure        = { this.state.measureSelected }
+
+                                entity_labels  = { geography_labels}
+                                measure_labels = { measure_labels }
                             />
                         </div>
                         

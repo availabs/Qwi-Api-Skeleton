@@ -17,34 +17,29 @@ var React        = require('react'),
 *=====================================================*/
 var SingleButtonDropdown = React.createClass ( {
 
-    'getInitialState': function () {
-        return { active: true };
-    },
-
     'render': function () {
-        console.log(this.props.select);
+        
+        var props    = this.props,
+            selected = props.selected ? ((props.selected.constructor === Array) ? props.selected : [props.selected]) : [];
+
 
         return ( 
             <div className = 'btn-group'>
 
                 <button type          = 'button'
-                        className     = { 'btn btn-default dropdown-toggle' + (this.props.select ? '' : ' disabled') }
+                        className     = { 'btn btn-default dropdown-toggle' + (props.select ? '' : ' disabled') }
                         data-toggle   = 'dropdown'
                         aria-expanded = 'false' >
 
-                            { this.props.title } 
+                            { props.title } 
                             <span className='caret'></span>
-
                 </button>
 
                 <DropdownMenu 
-                    select    = { this.props.select }    
-                    deselect  = { this.props.deselect }  
-
-                    active    = { this.state.active }    
-
-                    selection = { this.props.selection } 
-                    selected  = { this.props.selected }  
+                    select    = { props.select }    
+                    deselect  = { props.deselect }  
+                    selection = { props.selection } 
+                    selected  = { selected }  
                 />
             </div>
         );

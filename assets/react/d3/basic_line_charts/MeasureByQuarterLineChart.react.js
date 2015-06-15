@@ -6,31 +6,30 @@ var React = require('react'),
     d3    = require('d3');
 
 
+
 /*========================================================================
  *
  * Props:
- *          width
  *          height
  *          margin.top, margin.right, margin.bottom, margin.left
  *          data
+ *          entity_id
  *          measure
- *          measure_label
+ *          entity_labels
+ *          measure_labels
  *
  *========================================================================*/
 var MeasureByQuarterLineChart = React.createClass({
 
 
     '_init' : function () {
+
         var theSVG = React.findDOMNode(this.refs.theSVG),
             that   = this;
     
         var width  = theSVG.offsetWidth  - this.props.margin.right - this.props.margin.left,
             height = this.props.height - this.props.margin.top   - this.props.margin.bottom;
 
-        console.log('MeasureByQuarterLineChart _init called.');
-        //console.log(theSVG);
-        //console.log(width);
-        //console.log(height);
 
         this._x = d3.time.scale().range([0, width]);
 
@@ -47,6 +46,7 @@ var MeasureByQuarterLineChart = React.createClass({
                     .x(function(d) { return that._x(d.date); })
                     .y(function(d) { return that._y(d[that.props.measure]); });
     },
+
 
     '_parseDate' : d3.time.format("%m-%Y").parse,
 
@@ -91,7 +91,7 @@ var MeasureByQuarterLineChart = React.createClass({
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text(nextProps.measure_label);
+            .text(nextProps.measure_labels[nextProps.measure]);
 
         theG.append("path")
             .datum(data)
@@ -101,12 +101,12 @@ var MeasureByQuarterLineChart = React.createClass({
 
 
     'componentDidMount' : function () { 
-        console.log('MeasureByQuarterLineChart didMount.'); 
         this._init(); 
     },
 
 
     'shouldComponentUpdate' : function (nextProps, nextState) {
+        // TODO: Going to need to reinit for width as well.
         var heightChanged = (this.props.height !== nextProps.height);
 
         if (heightChanged) {
@@ -123,12 +123,20 @@ var MeasureByQuarterLineChart = React.createClass({
 
     'render' : function () {
 
+        var props = this.props,
+            title = ( props.measure ? props.measure_labels[props.measure] : '<QWI Measure>' ) + 
+                    ' by quarter for ' +  
+                    ( props.entity_id ? props.entity_labels[props.entity_id] : '<State>' );
+
         return (
-            <svg width     = '100%'
-                 height    = { this.props.height }
-                 ref       = 'theSVG'
-                 className = 'chart' >
-            </svg>
+            <div>
+                <h1>{title}</h1>
+                <svg width     = '100%'
+                     height    = { props.height }
+                     ref       = 'theSVG'
+                     className = 'chart' >
+                </svg>
+            </div>
         );
     },
 

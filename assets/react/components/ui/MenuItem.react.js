@@ -17,10 +17,12 @@ var MenuItem = React.createClass ({
     toggleItem: function () { this.props.toggle(this.props.item); },
 
     render: function () {
+
         return (
-            <li onClick = { this.toggleItem }
-                role    = "presentation"
-                key     = { this.props.key } >
+            <li className = { this.props.isSelected ? 'disabled' : '' }
+                onClick   = { this.toggleItem }
+                role      = "presentation"
+                key       = { this.props.key } >
 
                     <a role="menuitem" 
                        tabindex="-1" 
