@@ -18,6 +18,9 @@ module.exports.routes = {
     'get  /measure/:measure/geography/:geography':
         'DataController.measure_by_quarter_for_geography',
 
+    'get  /measure/:measure/byNAICS/geography/:geography':
+        'DataController.measure_by_quarter_by_naics_for_geography',
+
     'get  /employment/total/measure/:measure/all_counties/state/:geography':
         'DataController.total_measure_for_counties_in_state',
 

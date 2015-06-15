@@ -40,7 +40,7 @@ module.exports = {
 
         console.log("++> total_measure_for_counties_in_state");
 
-        var stateGeoCode = req.params.geography && req.params.geography.replace(/ /g,''),
+        var stateGeoCode = req.params.geography && req.params.geography.trim(),
             measure      = req.params.measure,
             query;
 
@@ -72,7 +72,7 @@ module.exports = {
 
         console.log("++> measure_by_quarter_for_geography");
 
-        var geography = req.params.geography && req.params.geography.replace(/ /g,''),
+        var geography = req.params.geography && req.params.geography.trim(),
             measure   = req.params.measure,
             query;
 
@@ -91,6 +91,44 @@ module.exports = {
 
         console.log(query);
 
+
+        se_fa_gc_ns_op_u.find(query)
+                        .exec(function (error, data) {
+                            console.log("+++> Responding.");
+
+                            if (error) { res.send(500, error); }
+                            else { res.json(data); }
+                        });
+    },
+
+
+
+    'measure_by_quarter_by_naics_for_geography': function (req, res) {
+
+        console.log("++> measure_by_quarter_by_naics_for_geography");
+
+        var geography = req.params.geography && req.params.geography.trim(),
+            measure   = req.params.measure,
+            query;
+
+
+        if (!geography || !measure) {
+            res.send(500, {'ERROR': "Must specify the QWI measure and the 2-digit state geography code."});
+            return;
+        } 
+
+        query = { select : [ 'geography', 'year', 'quarter', measure, 'industry' ],
+                  where  : aggregationDefaults,
+                };
+
+        console.log('=====');
+        console.log(aggregationDefaults.industry);
+
+        query.where.geography = geography;
+        query.where.industry  = { not: aggregationDefaults.industry };
+        query.where.ind_level = 'S';
+
+        console.log(query);
 
         se_fa_gc_ns_op_u.find(query)
                         .exec(function (error, data) {

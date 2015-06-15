@@ -67,6 +67,13 @@ var thisStore = assign({}, EventEmitter.prototype, {
     },
 
 
+    'getMeasureByQuarterByNAICSForGeography': function (query) {
+        query.description = 'getMeasureByQuarterByNAICSForGeography';
+
+        return this._handleQuery(query);
+    },
+
+
     'handleQueryResult': function (query) {
         var stringifiedQuery = _stringifyQueryObject(query);
 

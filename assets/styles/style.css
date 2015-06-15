@@ -17,38 +17,38 @@ body {
 
 
 .selector {
-    color: rgb(255,236,189);
-    font: 25px arial, sans-serif;
+    color : rgb(255,236,189);
+    font  : 25px arial, sans-serif;
 }
 
 
 .selectorButton {
-    font: 35px arial, sans-serif;
+    font : 35px arial, sans-serif;
 }
 
 
 .selectorList {
-    margin-top: -50px; 
+    margin-top : -50px;
 }
 
 
 .axis path,
 .axis line {
-  fill: none;
-  stroke: #0E374D;
-  shape-rendering: crispEdges;
+    fill            : none;
+    stroke          : #0E374D;
+    shape-rendering : crispEdges;
 }
 
 
 .x.axis path {
-  display: none;
+    display : none;
 }
 
 
 .line {
-  fill: none;
-  stroke: #0E374D;
-  stroke-width: 5px;
+    fill         : none;
+    stroke       : #0E374D;
+    stroke-width : 5px;
 }
 
 
@@ -76,25 +76,29 @@ body {
 
 
 .availGrey {
-    color: #6A6B6E;
+    color : #6A6B6E;
 }
 
 
 .top-buffer { 
-    margin-top:50px; 
+    margin-top : 10px; 
 }
 
 
 div {
-    margin: 0;
-    padding: 0;
+    margin  : 0;
+    padding : 0;
 }
 
 
 .scrollable-menu {
-    height: auto;
-    max-height: 200px;
-    overflow-x: hidden;
+    height     : auto;
+    max-height : 200px;
+    overflow-x : hidden;
 }
 
 
+.container {
+    margin  : 0;
+    padding : 0;
+}

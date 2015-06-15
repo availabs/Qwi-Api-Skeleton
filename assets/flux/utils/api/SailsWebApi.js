@@ -10,8 +10,6 @@ module.exports = {
 
     'getMeasureForAllCountiesInState' : function (query) {
 
-        console.log('Server query result requested.');
-
         var url = '/employment/total/measure/' +
                   query.measure          +
                   '/all_counties/state/'       +
@@ -31,12 +29,32 @@ module.exports = {
 
     'getMeasureByQuarterForGeography' : function (query) {
 
-        console.log('Server query result requested.');
-
         var url = '/measure/'      +
                   query.measure    +
                   '/geography/'    +
                   query.geography;
+
+        d3.json(url, function (error, data) {
+
+            console.log('Server query result obtained.');
+
+            if (error) { console.error(error); }
+            
+            query.data = data;
+            ServerActionCreators.handleQueryResult(query);
+        });
+
+    },
+
+    'getMeasureByQuarterByNAICSForGeography' : function (query) {
+
+        var url = '/measure/'      +
+                  query.measure    +
+                  '/byNAICS/'      +
+                  'geography/'     +
+                  query.geography;
+
+        console.log('getMeasureByQuarterByNAICSForGeography');
 
         d3.json(url, function (error, data) {
 
