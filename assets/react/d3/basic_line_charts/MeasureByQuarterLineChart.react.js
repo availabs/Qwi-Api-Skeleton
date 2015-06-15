@@ -22,6 +22,9 @@ var React = require('react'),
 var MeasureByQuarterLineChart = React.createClass({
 
 
+    '_parseDate' : d3.time.format("%m-%Y").parse,
+
+
     '_init' : function () {
 
         var theSVG = React.findDOMNode(this.refs.theSVG),
@@ -48,13 +51,10 @@ var MeasureByQuarterLineChart = React.createClass({
     },
 
 
-    '_parseDate' : d3.time.format("%m-%Y").parse,
+    '_update' : function (props) {
 
-
-    '_update' : function (nextProps) {
-
-        var data    = nextProps.data || [],
-            measure = nextProps.measure,
+        var data    = props.data || [],
+            measure = props.measure,
             theSVG  = d3.select(React.findDOMNode(this.refs.theSVG)),
             that    = this,
             theG;
@@ -76,11 +76,11 @@ var MeasureByQuarterLineChart = React.createClass({
 
         theG = theSVG.append('g')
                      .style('width',  theSVG.offsetWidth)
-                     .style('height', nextProps.height - nextProps.margin.top - nextProps.margin.bottom);
+                     .style('height', props.height - props.margin.top - props.margin.bottom);
 
         theG.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + nextProps.height + ")")
+            .attr("transform", "translate(0," + props.height + ")")
             .call(this._xAxis);
 
         theG.append("g")
@@ -91,7 +91,7 @@ var MeasureByQuarterLineChart = React.createClass({
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text(nextProps.measure_labels[nextProps.measure]);
+            .text(props.measure_labels[props.measure]);
 
         theG.append("path")
             .datum(data)
@@ -100,24 +100,19 @@ var MeasureByQuarterLineChart = React.createClass({
     },
 
 
-    'componentDidMount' : function () { 
-        this._init(); 
+    'shouldComponentUpdate': function (nextProps, nextState) {
+        // TODO: Figure out why width resizing is free.
+        return  ( this.props.height !== nextProps.height ) ||
+                ( this.props.data   !== nextProps.data   )  ;
     },
 
 
-    'shouldComponentUpdate' : function (nextProps, nextState) {
-        // TODO: Going to need to reinit for width as well.
-        var heightChanged = (this.props.height !== nextProps.height);
-
-        if (heightChanged) {
+    'componentDidUpdate': function (prevProps, prevState) {
+        if (this.props.height !== prevProps.height) {
             this._init(); 
         }
 
-        if (heightChanged || (this.props.data !== nextProps.data)) {
-            this._update(nextProps); 
-        }
-
-        return heightChanged;
+        this._update(this.props);
     },
 
 

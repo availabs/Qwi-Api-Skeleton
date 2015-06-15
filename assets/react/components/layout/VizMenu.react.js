@@ -36,7 +36,7 @@ var VizMenu = React.createClass({
                             <span className='caret'></span>
                 </button>
 
-                <ul className='dropdown-menu' role='menu'>
+                <ul className='dropdown-menu dropdown-menu-right' role='menu'>
                     {links}
                 </ul>
             </div>
