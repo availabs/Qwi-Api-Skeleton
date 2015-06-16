@@ -34,6 +34,8 @@ module.exports = {
                   '/geography/'    +
                   query.geography;
 
+        console.log(query);
+
         d3.json(url, function (error, data) {
 
             console.log('Server query result obtained.');

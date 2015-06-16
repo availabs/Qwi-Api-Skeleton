@@ -1,4 +1,4 @@
-'usre strict';
+'use strict';
 
 module.exports = { 
     'agegrp'      : 'A00',

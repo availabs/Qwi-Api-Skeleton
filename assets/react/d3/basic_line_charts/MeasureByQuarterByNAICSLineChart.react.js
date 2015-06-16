@@ -4,7 +4,8 @@
 
 var React           = require('react'),
     d3              = require('d3'),
-    industry_labels = require('../../../data/labels/industry.js');
+    industry_labels = require('../../../data/labels/industry.js'),
+    linechartUtils  = require('../utils/linechart_utils.js');
 
 
 
@@ -23,43 +24,15 @@ var React           = require('react'),
 var MeasureByQuarterLineChart = React.createClass({
 
 
-    '_parseDate': d3.time.format("%m-%Y").parse,
+    '_update' : function () {
 
-
-    '_init' : function () {
-
-        var theSVG = React.findDOMNode(this.refs.theSVG),
-            that   = this;
-    
-        var width  = theSVG.offsetWidth - this.props.margin.right - this.props.margin.left,
-            height = this.props.height - this.props.margin.top   - this.props.margin.bottom;
-
-
-        this._x = d3.time.scale().range([0, width]);
-
-        this._y = d3.scale.linear().range([height, 0]);
-
-
-        this._xAxis = d3.svg.axis().scale(this._x).orient("bottom");
-
-
-        this._yAxis = d3.svg.axis().scale(this._y).orient("left");
-
-
-        this._line  = d3.svg.line()
-                    .x(function(d) { return that._x(d.date); })
-                    .y(function(d) { return that._y(d[that.props.measure]); });
-    },
-
-
-    '_update' : function (props) {
-
-        var data    = props.data || [],
+        var props   = this.props,
+            data    = props.data || [],
             measure = props.measure,
             theSVG  = d3.select(React.findDOMNode(this.refs.theSVG)),
             that    = this,
             theG,
-            sector,
+            sectorG,
             sectorsObj,
             sectorsArr;
 
@@ -78,18 +51,12 @@ var MeasureByQuarterLineChart = React.createClass({
             datum.date     = d.date     = that._parseDate(dateString);
             datum[measure] = d[measure] = +d[measure];
 
-            if (industryData) {
-                industryData[industryData.length] = datum;
-            } else {
-                sectorsObj[d.industry] = [datum];
-            }
-        });
+            if (!industryData) {
+                sectorsObj[d.industry] = industryData = [];
+            } 
 
-        console.log('===================');
-        console.log(industry_labels);
-        console.log('-------------------');
-        console.log(Object.keys(sectorsObj));
-        console.log('===================');
+            industryData[industryData.length] = datum;
+        });
 
         color.domain(Object.keys(sectorsObj));
 
@@ -102,6 +69,7 @@ var MeasureByQuarterLineChart = React.createClass({
 
 
         // Clear the Visualization.
+        // TODO: Try to just remove the axes, then use `exit` on the chart.
         theSVG.selectAll("*").remove();
 
         this._x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -127,17 +95,17 @@ var MeasureByQuarterLineChart = React.createClass({
             .style("text-anchor", "end")
             .text(props.measure_labels[props.measure]);
 
-        sector = theG.selectAll('.sector')
+        sectorG = theG.selectAll('.sector')
                      .data(sectorsArr)
                    .enter().append('g')
                      .attr('class', 'sector');
 
-        sector.append("path")
+        sectorG.append("path")
             .attr("class", "line")
             .attr("d", function(d) { return that._line(d.values); })
             .style('stroke', function(d) { return color(d.sector); });
 
-        sector.append('text')
+        sectorG.append('text')
             .datum(function (d) { return { label: industry_labels[d.sector],
                                            value: d.values[d.values.length -1] }; })
 
@@ -152,6 +120,11 @@ var MeasureByQuarterLineChart = React.createClass({
     },
 
 
+    'componentDidMount': function () {
+        this._parseDate = linechartUtils.parseDate;
+    },
+
+
     'shouldComponentUpdate': function (nextProps, nextState) {
         // TODO: Figure out why width resizing is free.
         return  ( this.props.height !== nextProps.height ) ||
@@ -161,10 +134,10 @@ var MeasureByQuarterLineChart = React.createClass({
 
     'componentDidUpdate': function (prevProps, prevState) {
         if (this.props.height !== prevProps.height) {
-            this._init(); 
+            linechartUtils.initByQuarterBasics.call(this);
         }
 
-        this._update(this.props);
+        this._update();
     },
 
 
@@ -188,7 +161,6 @@ var MeasureByQuarterLineChart = React.createClass({
             </div>
         );
     },
-
 });
 
 module.exports = MeasureByQuarterLineChart;

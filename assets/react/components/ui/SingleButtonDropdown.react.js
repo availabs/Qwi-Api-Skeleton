@@ -28,9 +28,6 @@ var SingleButtonDropdown = React.createClass ( {
                                 [props.selected]) : 
                             [];
         
-        console.log(props);
-
-
         return ( 
             <div className = {'btn-group ' + (props.dropUp ? ' dropup ' : '')} >
 

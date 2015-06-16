@@ -8,64 +8,9 @@ var React                = require('react'),
     measure_labels       = require('../../data/labels/measures.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
     LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react'),
+    pageUtils            = require('./utils'),
     lodash               = require('lodash');
 
-
-
-// Determines whether there have been any changes in the window size or layout.
-// We need the reactivator to be a Singleton. We can't have tangled async code.
-// 
-//  Params:
-//      callback -- function that receives the spareHeight in the window.
-//
-function newReactivator (callback) {
-
-    var COUNTER_DEFAULT  = 10,
-        INTERVAL_DEFAULT = 100,
-        CLASSNAME        = 'container';
-
-    return (function () { 
-
-        // Variables available across calls to the reactivator.
-        var counter,
-            intervalID,
-            innerHeight,
-            lowest;
-
-        // Function returned to the caller of newReactivator...
-        return function (debugMsg) {
-
-            counter = COUNTER_DEFAULT;
-
-
-            if (intervalID) { return; } // Keep on keeping on, with your refreshed counter.
-
-
-            intervalID = window.setInterval(function() {
-
-                innerHeight = window.innerHeight;
-                lowest      = document.getElementsByClassName(CLASSNAME)[0]
-                                      .getBoundingClientRect().bottom;
-
-                if(debugMsg) { console.log(debugMsg + ': ' + lowest + '~' + innerHeight); }
-
-                if(lowest !== innerHeight) {
-                    callback(innerHeight - lowest);
-                    
-                    // This could cause problems. Maybe just use counter???
-                    window.clearInterval(intervalID); 
-                    intervalID = null;
-                }
-
-                if(!(--counter)) { 
-                    window.clearInterval(intervalID); 
-                    intervalID = null;
-                }
-
-            }, INTERVAL_DEFAULT);
-        };
-    }());
-}
 
 
 var MeasureByQuarterForGeography = React.createClass ({
@@ -73,7 +18,7 @@ var MeasureByQuarterForGeography = React.createClass ({
 
     '_init': function() {
 
-        this._reactivator = newReactivator((function(spareHeight) { 
+        this._reactivator = pageUtils.newReactivator(function(spareHeight) { 
 
                 var vizAreaBottom = React.findDOMNode(this.refs.vizArea)
                                          .getBoundingClientRect().bottom - 1, 
@@ -86,7 +31,7 @@ var MeasureByQuarterForGeography = React.createClass ({
                     isStacked: (vizAreaBottom <= sideBarTop),
                 }); 
 
-            }).bind(this) // jshint ignore:line
+            }.bind(this) // jshint ignore:line
         );
     },
     
@@ -115,14 +60,14 @@ var MeasureByQuarterForGeography = React.createClass ({
         this._init();
 
         window.addEventListener('resize', this._reactivator);
-        this._reactivator('didMount');
+        this._reactivator();
 
         theStore.registerQueryResultReadyListener(this._handleResultReadyEvent);
     },
 
     
     'componentDidUpdate': function () {
-        this._reactivator('didUpdate');
+        this._reactivator();
     },
 
 
@@ -168,6 +113,8 @@ var MeasureByQuarterForGeography = React.createClass ({
 
     '_handleResultReadyEvent' : function (eventPayload) {
         if (eventPayload === this.state.pendingQuery) {
+            console.log(eventPayload.data);
+
             this.setState({ 
                 pendingQuery: null, 
                 data: eventPayload.data 
