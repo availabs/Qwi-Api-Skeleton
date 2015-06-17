@@ -9,16 +9,16 @@ var React        = require('react'),
 
     App          = require('./pages/layout.react'),
 
-    AVAILHome                           = require('./pages/AVAILHome.react'),
-    MeasureByQuarterForGeography        = require('./pages/MeasureByQuarterForGeography.react'),
-    MeasureByQuarterByNAICSForGeography = require('./pages/MeasureByQuarterByNAICSForGeography.react');
+    AVAILHome                              = require('./pages/AVAILHome.react'),
+    MeasureByQuarterForGeography           = require('./pages/MeasureByQuarterForGeography.react'),
+    MeasureByQuarterByCategoryForGeography = require('./pages/MeasureByQuarterByCategoryForGeography.react');
 
 
 
 //TODO: Try this...  http://stackoverflow.com/a/29319612
 var vizualizationRoutes = {
-    'Measure By Quarter For Geometry'          : 'measure_by_quarter_for_geometry',
-    'Measure By Quarter By NAICS For Geometry' : 'measure_by_quarter_by_naics_for_geography',
+    'Measure By Quarter For Geometry'             : 'measure_by_quarter_for_geometry',
+    'Measure By Quarter By Category For Geometry' : 'measure_by_quarter_by_category_for_geography',
 };
 
 var AppWrapper = React.createClass({
@@ -43,9 +43,9 @@ var routes = (
                 path='measure_by_quarter_for_geometry'  
                 handler={ MeasureByQuarterForGeography } />
 
-        <Route  name='Measure By Quarter By NAICS For Geometry' 
-                path='measure_by_quarter_by_naics_for_geography'  
-                handler={ MeasureByQuarterByNAICSForGeography } />
+        <Route  name='Measure By Quarter By Category For Geometry' 
+                path='measure_by_quarter_by_category_for_geography'  
+                handler={ MeasureByQuarterByCategoryForGeography } />
 
         <DefaultRoute handler={ AVAILHome }/>
     </Route>

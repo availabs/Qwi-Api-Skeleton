@@ -35,8 +35,13 @@ body {
 .axis path,
 .axis line {
     fill            : none;
-    stroke          : #0E374D;
+    stroke          : #808080;
     shape-rendering : crispEdges;
+}
+
+.axis text {
+    fill: white;
+    stroke: #808080;
 }
 
 
@@ -48,7 +53,7 @@ body {
 .line {
     fill         : none;
     stroke       : #0E374D;
-    stroke-width : 5px;
+    stroke-width : 4px;
 }
 
 
@@ -67,7 +72,8 @@ body {
 
 
 .chart {
-    background   : linear-gradient(to right, rgba(191,191,191,10), rgba(191,191,191,50), rgba(191,191,191,10));
+    /*background   : linear-gradient(to right, rgba(191,191,191,10), rgba(191,191,191,50), rgba(191,191,191,10));*/
+    background   : black;
     margin-left  : auto;
     margin-right : auto;
     color        : #0E374D;
@@ -101,4 +107,9 @@ div {
 .container {
     margin  : 0;
     padding : 0;
+}
+
+.grid-line {
+    stroke: #808080;
+    stroke-opacity: 0.2;
 }

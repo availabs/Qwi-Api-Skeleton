@@ -21,7 +21,10 @@ var _data = {};
 
 
 function _stringifyQueryObject (qObj) {
-    return qObj.description + '_' + qObj.geography + '_' + qObj.measure;
+    return  qObj.description + '_' + 
+            qObj.geography   + '_' + 
+            qObj.measure     + 
+            (qObj.category ? ('_' + qObj.category) : '');
 }
 
 
@@ -45,10 +48,8 @@ var thisStore = assign({}, EventEmitter.prototype, {
         var stringifiedQuery = _stringifyQueryObject(query);
         
         if (_data[stringifiedQuery]) {
-            console.log('Using stored data.');
             return _data[stringifiedQuery];
         } else {
-            console.log('Retrieving data from the server.');
             SailsWebApi[query.description](query);
             return null;
         }
@@ -67,8 +68,8 @@ var thisStore = assign({}, EventEmitter.prototype, {
     },
 
 
-    'getMeasureByQuarterByNAICSForGeography': function (query) {
-        query.description = 'getMeasureByQuarterByNAICSForGeography';
+    'getMeasureByQuarterByCategoryForGeography': function (query) {
+        query.description = 'getMeasureByQuarterByCategoryForGeography';
 
         return this._handleQuery(query);
     },

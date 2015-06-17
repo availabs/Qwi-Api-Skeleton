@@ -1,12 +1,19 @@
 /* globals se_fa_gc_ns_op_u */
 
-"use strict";
+'use strict';
 
-var aggregationDefaults = require('../../assets/data/aggregation_categories/defaults.js');
+
+
+var aggregationDefaults = require('../../assets/data/aggregation_categories/defaults.js'),
+    lodash              = require('lodash');
+
+
 
 var tables = {
     se_fa_gc_ns_op_u: true
 };
+
+
 
 module.exports = {
       
@@ -38,7 +45,7 @@ module.exports = {
 
     'total_measure_for_counties_in_state': function (req, res) {
 
-        console.log("++> total_measure_for_counties_in_state");
+        console.log('++> total_measure_for_counties_in_state');
 
         var stateGeoCode = req.params.geography && req.params.geography.trim(),
             measure      = req.params.measure,
@@ -46,7 +53,7 @@ module.exports = {
 
 
         if (!(stateGeoCode && measure) || (stateGeoCode.length !== 2)) {
-            res.send(500, {'ERROR': "Must specify the QWI measure and the 2-digit state geography code."});
+            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
             return;
         } 
 
@@ -59,7 +66,7 @@ module.exports = {
 
         se_fa_gc_ns_op_u.find(query)
                         .exec(function (error, data) {
-                            console.log("+++> Responding.");
+                            console.log('+++> Responding.');
 
                             if (error) { res.send(500, error); }
                             else { res.json(data); }
@@ -70,7 +77,7 @@ module.exports = {
 
     'measure_by_quarter_for_geography': function (req, res) {
 
-        console.log("++> measure_by_quarter_for_geography");
+        console.log('++> measure_by_quarter_for_geography');
 
         var geography = req.params.geography && req.params.geography.trim(),
             measure   = req.params.measure,
@@ -78,7 +85,7 @@ module.exports = {
 
 
         if (!geography || !measure) {
-            res.send(500, {'ERROR': "Must specify the QWI measure and the 2-digit state geography code."});
+            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
             return;
         } 
 
@@ -94,7 +101,7 @@ module.exports = {
 
         se_fa_gc_ns_op_u.find(query)
                         .exec(function (error, data) {
-                            console.log("+++> Responding.");
+                            console.log('+++> Responding.');
 
                             if (error) { res.send(500, error); }
                             else { res.json(data); }
@@ -103,36 +110,35 @@ module.exports = {
 
 
 
-    'measure_by_quarter_by_naics_for_geography': function (req, res) {
+    'measure_by_quarter_by_category_for_geography': function (req, res) {
 
-        console.log("++> measure_by_quarter_by_naics_for_geography");
+        console.log('++> measure_by_quarter_by_category_for_geography');
 
-        var geography = req.params.geography && req.params.geography.trim(),
-            measure   = req.params.measure,
+        var measure   = req.params.measure,
+            category  = req.params.category,
+            geography = req.params.geography && req.params.geography.trim(),
             query;
 
 
-        if (!geography || !measure) {
-            res.send(500, {'ERROR': "Must specify the QWI measure and the 2-digit state geography code."});
+        if (!(geography && measure && category)) {
+            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
             return;
         } 
 
-        query = { select : [ 'geography', 'year', 'quarter', measure, 'industry' ],
-                  where  : aggregationDefaults,
+        query = { select : [ measure, category, 'geography', 'year', 'quarter' ],
+                  where  : lodash.cloneDeep(aggregationDefaults),
                 };
 
-        console.log('=====');
-        console.log(aggregationDefaults.industry);
-
         query.where.geography = geography;
-        query.where.industry  = { not: aggregationDefaults.industry };
-        query.where.ind_level = 'S';
+        query.where[category] = { not: aggregationDefaults[category] };
 
+        console.log();
         console.log(query);
+        console.log();
 
         se_fa_gc_ns_op_u.find(query)
                         .exec(function (error, data) {
-                            console.log("+++> Responding.");
+                            console.log('+++> Responding.');
 
                             if (error) { res.send(500, error); }
                             else { res.json(data); }

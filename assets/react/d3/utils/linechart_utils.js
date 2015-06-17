@@ -22,10 +22,14 @@ module.exports = {
         this._y = d3.scale.linear().range([height, 0]);
 
 
-        this._xAxis = d3.svg.axis().scale(this._x).orient("bottom");
+        this._xAxis = d3.svg.axis()
+                            .scale(this._x)
+                            .orient("bottom")
+                            .innerTickSize(-height)
+                            .tickPadding(this.props.margin.bottom / 2.0);
 
 
-        this._yAxis = d3.svg.axis().scale(this._y).orient("left");
+        this._yAxis = d3.svg.axis().scale(this._y).orient("left").innerTickSize(-width);
 
 
         this._line  = d3.svg.line()

@@ -48,15 +48,16 @@ module.exports = {
 
     },
 
-    'getMeasureByQuarterByNAICSForGeography' : function (query) {
+    'getMeasureByQuarterByCategoryForGeography' : function (query) {
 
         var url = '/measure/'      +
                   query.measure    +
-                  '/byNAICS/'      +
-                  'geography/'     +
+                  '/byCategory/'   +
+                  query.category   +
+                  '/geography/'     +
                   query.geography;
 
-        console.log('getMeasureByQuarterByNAICSForGeography');
+        console.log('getMeasureByQuarterByCategoryForGeography');
 
         d3.json(url, function (error, data) {
 
