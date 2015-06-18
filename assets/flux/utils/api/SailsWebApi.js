@@ -17,8 +17,6 @@ module.exports = {
 
         d3.json(url, function(err,data) {
 
-            console.log('Server query result obtained.');
-
             if (err) { throw err; }
             
             query.data = data;
@@ -34,11 +32,7 @@ module.exports = {
                   '/geography/'    +
                   query.geography;
 
-        console.log(query);
-
         d3.json(url, function (error, data) {
-
-            console.log('Server query result obtained.');
 
             if (error) { console.error(error); }
             
@@ -56,8 +50,6 @@ module.exports = {
                   query.category   +
                   '/geography/'     +
                   query.geography;
-
-        console.log('getMeasureByQuarterByCategoryForGeography');
 
         d3.json(url, function (error, data) {
 

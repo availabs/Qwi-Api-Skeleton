@@ -10,7 +10,27 @@ var aggregationDefaults = require('../../assets/data/aggregation_categories/defa
 
 
 var tables = {
-    se_fa_gc_ns_op_u: true
+    rh_fa_gc_ns_op_u : true ,
+    rh_fs_gc_ns_op_u : true ,
+
+    sa_fa_gc_ns_op_u : true ,
+    sa_fs_gc_ns_op_u : true ,
+
+    se_fa_gc_ns_op_u : true ,
+    se_fs_gc_ns_op_u : true ,
+};
+
+var workerCharacteristics = {
+    agegrp    : 'sa',
+    education : 'se',
+    ethnicity : 'rh',
+    race      : 'rh',
+    sex       : 'sa',
+};
+
+var firmCharacteristics = {
+    firmage  : 'fa',
+    firmsize : 'fs',
 };
 
 
@@ -114,9 +134,12 @@ module.exports = {
 
         console.log('++> measure_by_quarter_by_category_for_geography');
 
-        var measure   = req.params.measure,
-            category  = req.params.category,
-            geography = req.params.geography && req.params.geography.trim(),
+        var measure              = req.params.measure,
+            category             = req.params.category,
+            geography            = req.params.geography && req.params.geography.trim(),
+            workerCharacteristic = workerCharacteristics[category] || 'rh',
+            firmCharacteristic   = firmCharacteristics[category]   || 'fa',
+            tableName            = workerCharacteristic + '_' + firmCharacteristic + '_gc_ns_op_u',
             query;
 
 
@@ -133,15 +156,18 @@ module.exports = {
         query.where[category] = { not: aggregationDefaults[category] };
 
         console.log();
+        console.log(tableName);
         console.log(query);
         console.log();
 
-        se_fa_gc_ns_op_u.find(query)
-                        .exec(function (error, data) {
-                            console.log('+++> Responding.');
+        global[tableName].find(query)
+                         .sort('year')
+                         .sort('quarter')
+                         .exec(function (error, data) {
+                             console.log('+++> Responding.');
 
-                            if (error) { res.send(500, error); }
-                            else { res.json(data); }
-                        });
+                             if (error) { res.send(500, error); }
+                             else { res.json(data); }
+                         });
     },
 };
