@@ -1,9 +1,11 @@
 /*jshint strict:false , unused:false */
+/*globals $ */
 
 
 
 var React                 = require('react'),
     d3                    = require('d3'),
+    saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
     linechartUtils        = require('../utils/linechart_utils'),
     geography_labels      = require('../../../data/labels/geography'),
     category_descriptions = require('../../../data/labels/categories');
@@ -47,7 +49,6 @@ var MeasureByQuarterLineChart = React.createClass({
         // TODO: Try to just remove the axes, then use `exit` on the chart.
         theSVG.selectAll('*').remove();
 
-        
         // Parse the data
         categoriesObj = {};
         data.forEach(function(d) {
@@ -78,7 +79,6 @@ var MeasureByQuarterLineChart = React.createClass({
                 values   : categoriesObj[cat],
             };
         });
-
 
         this._x.domain(d3.extent(data, function(d) { return d.date;     }));
         this._y.domain(d3.extent(data, function(d) { return d[measure]; }));
@@ -111,22 +111,26 @@ var MeasureByQuarterLineChart = React.createClass({
             .attr('x', 3)
             .attr('dy', '0.35em')
             .text(function (d) { return d.label; })
+            .style('font-size', '10px')
             .style('fill', function(d) { return color(d.category); });
 
 
         theG.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + (props.height - props.margin.bottom - props.margin.top) + ')')
+            .style('font-size', '10px')
             .call(this._xAxis);
 
         theG.append('g')
             .attr('class', 'y axis')
+            .style('font-size', '10px')
             .call(this._yAxis)
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', 6)
             .attr('dy', '.71em')
             .style('text-anchor', 'end')
+            .style('font-size', '10px')
             .text(props.measure_labels[props.measure]);
 
         d3.selectAll('g.tick')
@@ -156,21 +160,56 @@ var MeasureByQuarterLineChart = React.createClass({
     },
 
 
+    '_getChartTitle': function () {
+        var props = this.props;
+
+        return  ( props.measure ? props.measure_labels[props.measure] : '<QWI Measure>' ) + 
+                ' by quarter by ' +
+                ( props.category ? category_descriptions[props.category] : '<QWI Category>' ) +
+                ' for ' +
+                ( props.geography ? geography_labels[props.geography] : '<State>' );
+    },
+
+
+    '_savePng': function () {
+        var theSVG   = React.findDOMNode(this.refs.theSVG),
+            theClone = theSVG.cloneNode(true),
+            fileName = this._getChartTitle().replace(/\s+/g, '_');
+
+        // FIXME: There has to be a better way...
+        // Gets the rightmost element in the svg tree to determine width.
+        var width = Math.max.apply(null, 
+                                    $('#foobar').find('*')
+                                                .map(function() { 
+                                                        return this.getBoundingClientRect().right; 
+                                                     })
+                                                .toArray());
+
+        //Makes sure the exported image is complete, not cropped.
+        theClone.setAttribute('width', width);
+        saveSvgAsPng(theClone, fileName);
+    },
+
+
     'render' : function () {
 
-        var props = this.props,
-            title = ( props.measure ? props.measure_labels[props.measure] : '<QWI Measure>' ) + 
-                    ' by quarter by ' +
-                    ( props.category ? category_descriptions[props.category] : '<QWI Category>' ) +
-                    ' for ' +
-                    ( props.geography ? geography_labels[props.geography] : '<State>' );
+        var props = this.props;
 
         return (
             <div>
                 <h3 className='chart-title' >
-                        { title }
+                        { this._getChartTitle() }
                 </h3>
-                <svg width     = '100%'
+
+				<button className={'btn btn-default ' + 
+                                    ( props.data ? '' : ' disabled')} 
+                        style={{position:'absolute', bottom:'5px',right:'15px'}} 
+                        onClick={this._savePng}>
+                            'Export'
+                </button>
+
+                <svg id = {'foobar' }
+                     width     = '100%'
                      height    = { props.height }
                      ref       = 'theSVG'
                      className = 'chart' >
