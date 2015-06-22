@@ -167,7 +167,7 @@ var MeasureByQuarterLineChart = React.createClass({
                 ' by quarter by ' +
                 ( props.category ? category_descriptions[props.category] : '<QWI Category>' ) +
                 ' for ' +
-                ( props.geography ? geography_labels[props.geography] : '<State>' );
+                ( props.geography ? geography_labels[props.geography] : '<Geo Area>' );
     },
 
 

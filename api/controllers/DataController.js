@@ -134,14 +134,21 @@ module.exports = {
 
         console.log('++> measure_by_quarter_by_category_for_geography');
 
-        var measure              = req.params.measure,
-            category             = req.params.category,
-            geography            = req.params.geography && req.params.geography.trim(),
+        var params               = req.params,
+            measure              = params.measure,
+            category             = params.category,
+            geography            = params.geography && params.geography.trim(),
             workerCharacteristic = workerCharacteristics[category] || 'rh',
             firmCharacteristic   = firmCharacteristics[category]   || 'fa',
-            tableName            = workerCharacteristic + '_' + firmCharacteristic + '_gc_ns_op_u',
+            geoLevel             = (params.geography.length <= 5) ? 'gc' :
+                                        (params.geography.length < 8) ? 'gm' : 'gw',
+            tableName,
             query;
 
+        tableName = workerCharacteristic + '_' + 
+                    firmCharacteristic   + '_' +
+                    geoLevel             + '_' +
+                    'ns_op_u';
 
         if (!(geography && measure && category)) {
             res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
