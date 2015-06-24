@@ -51,6 +51,8 @@ module.exports = {
                   '/geography/'     +
                   query.geography;
 
+        // TODO: Try this instead...
+        // https://github.com/mbostock/d3/wiki/Requests#on
         d3.json(url, function (error, data) {
 
             console.log('Server query result obtained.');

@@ -50,13 +50,6 @@ body {
 }
 
 
-.line {
-    fill         : none;
-    stroke       : #0E374D;
-    stroke-width : 4px;
-}
-
-
 /*.page {*/
     /*position     : absolute;*/
     /*top          : 50%;*/
@@ -110,7 +103,39 @@ div {
     width   : 96%;
 }
 
+.categories {
+  fill: none;
+  stroke: #aaa;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
+}
+
+.line {
+    fill         : none;
+    stroke-width : 4px;
+}
+
+
+.line--hover {
+    fill         : none;
+    stroke-width : 6px;
+}
+
+.focus text {
+  text-anchor: middle;
+}
+
+
+.voronoi path {
+  fill: none;
+  pointer-events: all;
+}
+
+
 .grid-line {
     stroke: #808080;
     stroke-opacity: 0.2;
 }
+
+

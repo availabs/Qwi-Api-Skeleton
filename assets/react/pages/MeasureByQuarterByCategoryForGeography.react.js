@@ -12,7 +12,7 @@ var React                = require('react'),
 
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
 
-    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterByCategoryLineChart.react'),
+    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterByCategoryVoronoiLineChart.react.js'),
 
     pageUtils            = require('./utils'),
     lodash               = require('lodash');
