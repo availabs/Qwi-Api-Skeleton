@@ -121,6 +121,11 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             return data;
         });
 
+        categoriesArr.sort(function(b,a) { 
+            return b.values[b.values.length -1][measure] - a.values[a.values.length -1][measure];
+        });
+
+
 
 
         theG = theSVG.append('g')
@@ -141,23 +146,39 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
                            return that._line(d.values); })
             .style('stroke', function(d) { return color(d.subcategory); });
 
-        categoriesG.append('text')
-                   .datum(function (d) { return { subcategory : d.subcategory,
-                                                  label       : props.category_labels[d.subcategory],
-                                                  value       : d.values[d.values.length -1] }; })
 
-                   .attr('transform', function(d) { return 'translate('                +
-                                                           that._x(d.value.date)       +
-                                                           ','                         +
-                                                           that._y(d.value[measure]) +
-                                                           ')'; })
-                   .attr('x', 3)
-                   .attr('dy', '0.35em')
-                   .attr('class', 'exportable')
-                   .text(function (d) { return d.label; })
-                   .style('font-size', '10px')
-                   .style('fill', function(d) { return color(d.subcategory); });
+        (function() {
+            var maxY_translation = Number.POSITIVE_INFINITY,
+                xTranslation     = d3.max(categoriesArr, function(d) { 
+                                            return that._x(d.values[d.values.length -1].date); }),
+                lineLabelHeight;
 
+            categoriesG.append('text')
+                       .datum(function (d) { return { subcategory : d.subcategory,
+                                                      label       : props.category_labels[d.subcategory],
+                                                      value       : d.values[d.values.length -1] }; })
+                       .attr('x', 3)
+                       .attr('dy', '0.35em')
+                       .attr('class', 'exportable')
+                       .text(function (d) { return d.label; })
+                       .style('font-size', '10px')
+                       //.style('text-anchor', 'bottom')
+                       .style('fill', function(d) { return color(d.subcategory); })
+                       .attr('transform', function(d, i) { 
+                           var yTranslation;
+
+                           if (!lineLabelHeight) { 
+                               lineLabelHeight = this.getBoundingClientRect().height; 
+                           }
+                           
+                           yTranslation = Math.min(that._y(d.value[measure]) + lineLabelHeight, maxY_translation);
+
+                           maxY_translation = yTranslation - Math.ceil(lineLabelHeight/2.0) - 2;
+
+                           return 'translate(' + xTranslation + ',' + maxY_translation + ')'; 
+                        });
+
+        }());
 
 
         var focus = theG.append("g")
