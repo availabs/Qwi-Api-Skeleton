@@ -7,7 +7,7 @@ var React                = require('react'),
     geography_labels     = require('../../data/labels/geography.js'),
     measure_labels       = require('../../data/labels/measures.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
-    LineChart            = require('../d3/basic_line_charts/MeasureByQuarterLineChart.react'),
+    LineChart            = require('../charts/basic_line_charts/MeasureByQuarterLineChart.react'),
     pageUtils            = require('./utils'),
     lodash               = require('lodash');
 

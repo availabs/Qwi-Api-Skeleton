@@ -1,47 +1,37 @@
 /*jshint strict:false , unused:false */
 /*globals $ */
 
-/* This file needs a major refactor, but the heavy use of closures
- * means that breaking the code into smaller functions may result
- * in even less readable code. 
- */                                   
 
+// TODO: This code is in the early phase of a major refactoring.
+//          Lots more needed.
+//
 
 var React                 = require('react'),
     d3                    = require('d3'),
     saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
-    linechartUtils        = require('../utils/linechart_utils'),
-    geography_labels      = require('../../../data/labels/geography'),
-    category_descriptions = require('../../../data/labels/categories');
+    linechartUtils        = require('../../react/charts/utils/linechart_utils'),
+    geography_labels      = require('../../data/labels/geography'),
+    category_descriptions = require('../../data/labels/categories');
 
 
 
-/*========================================================================
- *
- * Props:
- *          height
- *          margin.top, margin.right, margin.bottom, margin.left
- *          data
- *          geography
- *          measure
- *          measure_labels
- *          category
- *          category_labels
- *
- *========================================================================*/
-var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
+function newChart () {
+
+    var theComponent = this,
+        color        = d3.scale.category20(),
+        quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
 
 
-    '_update' : function () {
+    var theChart = {};
 
-        var that     = this,
+    theChart.update = function () {
 
-            props    = this.props,
+        var props    = theComponent.props,
             data     = props.data || [],
             measure  = props.measure,
             category = props.category,
 
-            svgNode  = React.findDOMNode(this.refs.theSVG),
+            svgNode  = React.findDOMNode(theComponent.refs.theSVG),
             theSVG   = d3.select(svgNode),
             theG,
             categoriesG,
@@ -54,19 +44,13 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             categoriesVoronoiObj,
             categoriesArr;
 
-
-        var quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
-
-        
         var voronoi = d3.geom.voronoi()
-                             .x(function(d) { return that._x(d.date); })
-                             .y(function(d) { return that._y(d[measure]); })
+                             .x(function(d) { return theComponent._x(d.date); })
+                             .y(function(d) { return theComponent._y(d[measure]); })
                              .clipExtent([[ -margin.left, -margin.top], 
                                           [ width + margin.right, height + margin.bottom]]);
 
-        var color = d3.scale.category20();
 
-        
         // Clear the Visualization.
         // TODO: Try to just remove the axes, then use `exit` on the chart.
         theSVG.selectAll('*').remove();
@@ -91,7 +75,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
             datum.year     = d.year.toString().trim();
             datum.quarter  = d.quarter.toString().trim();
-            datum.date     = d.date     = that._parseDate(dateString);
+            datum.date     = d.date     = theComponent._parseDate(dateString);
             datum[measure] = d[measure] = +d[measure];
 
             dataArr[dataArr.length] = datum;
@@ -100,8 +84,8 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
         color.domain(Object.keys(subcategoriesDataObj));
 
-        this._x.domain(d3.extent(data, function(d) { return d.date;     }));
-        this._y.domain(d3.extent(data, function(d) { return d[measure]; }));
+        theComponent._x.domain(d3.extent(data, function(d) { return d.date;     }));
+        theComponent._y.domain(d3.extent(data, function(d) { return d[measure]; }));
 
 
         // Turn the parsed data into an array of data
@@ -121,10 +105,10 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             return data;
         });
 
+
         categoriesArr.sort(function(b,a) { 
             return b.values[b.values.length -1][measure] - a.values[a.values.length -1][measure];
         });
-
 
 
 
@@ -143,14 +127,14 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             .attr('class', 'line exportable')
             .attr('d', function (d) {
                            d.line = this;
-                           return that._line(d.values); })
+                           return theComponent._line(d.values); })
             .style('stroke', function(d) { return color(d.subcategory); });
 
 
         (function() {
             var maxY_translation = Number.POSITIVE_INFINITY,
                 xTranslation     = d3.max(categoriesArr, function(d) { 
-                                            return that._x(d.values[d.values.length -1].date); }),
+                                            return theComponent._x(d.values[d.values.length -1].date); }),
                 lineLabelHeight;
 
             categoriesG.append('text')
@@ -162,7 +146,6 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
                        .attr('class', 'exportable')
                        .text(function (d) { return d.label; })
                        .style('font-size', '10px')
-                       //.style('text-anchor', 'bottom')
                        .style('fill', function(d) { return color(d.subcategory); })
                        .attr('transform', function(d, i) { 
                            var yTranslation;
@@ -171,7 +154,8 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
                                lineLabelHeight = this.getBoundingClientRect().height; 
                            }
                            
-                           yTranslation = Math.min(that._y(d.value[measure]) + lineLabelHeight, maxY_translation);
+                           yTranslation = Math.min(theComponent._y(d.value[measure]) + lineLabelHeight, 
+                                                   maxY_translation);
 
                            maxY_translation = yTranslation - Math.ceil(lineLabelHeight/2.0) - 2;
 
@@ -197,9 +181,12 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
         voronoiGroup.selectAll("path")
                     .data(voronoi(d3.nest()
-                                    .key(function (d) { return that._x(d.date) + "," + that._y(d[measure]); })
+                                    .key(function (d) { return theComponent._x(d.date) + 
+                                                                "," + 
+                                                                theComponent._y(d[measure]); })
                                     .rollup(function (v) { return v[0]; })
-                                    .entries(d3.merge(categoriesArr.map(function (d) { return d.values; })))
+                                    .entries(d3.merge(categoriesArr.map(function (d) { 
+                                                                            return d.values; })))
                                     .map(function(d) { return d.values; })))
                     .enter().append("path")
                             .attr("d", function(d) { return "M" + d.join("L") + "Z"; })
@@ -209,13 +196,13 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
         d3.select("#show-voronoi")
           .property("disabled", false)
-          .on("change", function() { console.log('Sup'); voronoiGroup.classed("voronoi--show", this.checked); });
+          .on("change", function() { voronoiGroup.classed("voronoi--show", theComponent.checked); });
 
 
         function mouseover(d) {
             var textNode       = focus.select('text'),
                 textNodeHeight = textNode.node().getBBox().height,
-                pointYCoord    = that._y(d[measure]),
+                pointYCoord    = theComponent._y(d[measure]),
 
                 // Make sure the text node is within the chart.
                 textNodeYCoord = ((pointYCoord - textNodeHeight) > 0) ? 
@@ -227,7 +214,8 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
             d.circularRef.line.parentNode.appendChild(d.circularRef.line);
 
-            focus.attr("transform", "translate(" + that._x(d.date) + "," + textNodeYCoord + ")");
+            focus.attr("transform", "translate(" + 
+                                     theComponent._x(d.date) + "," + textNodeYCoord + ")");
 
             textNode.selectAll('*').remove();
 
@@ -264,14 +252,15 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
         theG.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (props.height - props.margin.bottom - props.margin.top) + ')')
+            .attr('transform', 'translate(0,' + 
+                                (props.height - props.margin.bottom - props.margin.top) + ')')
             .style('font-size', '10px')
-            .call(this._xAxis);
+            .call(theComponent._xAxis);
 
         theG.append('g')
             .attr('class', 'y axis')
             .style('font-size', '10px')
-            .call(this._yAxis)
+            .call(theComponent._yAxis)
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', 6)
@@ -283,92 +272,10 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
         d3.selectAll('g.tick')
             .select('line') //grab the tick line
             .attr('class', 'grid-line');
-    },
+    };
 
 
+    return theChart;
+}
 
-    'componentDidMount': function () {
-        this._parseDate = linechartUtils.parseDate;
-    },
-
-
-
-    'shouldComponentUpdate': function (nextProps, nextState) {
-        // TODO: Figure out why width resizing is free.
-        return  ( this.props.height !== nextProps.height ) ||
-                ( this.props.data   !== nextProps.data   )  ;
-    },
-
-
-
-    'componentDidUpdate': function (prevProps, prevState) {
-        if (this.props.height !== prevProps.height) {
-            linechartUtils.initByQuarterBasics.call(this);
-        }
-
-        this._update();
-    },
-
-
-
-    '_getChartTitle': function () {
-        var props = this.props;
-
-        return  ( props.measure ? props.measure_labels[props.measure] : '<QWI Measure>' ) + 
-                ' by quarter by ' +
-                ( props.category ? category_descriptions[props.category] : '<QWI Category>' ) +
-                ' for ' +
-                ( props.geography ? geography_labels[props.geography] : '<Geo Area>' );
-    },
-
-
-    '_savePng': function () {
-        var theSVG       = React.findDOMNode(this.refs.theSVG),
-            theClone     = theSVG.cloneNode(true),
-            fileName     = this._getChartTitle().replace(/\s+/g, '_'),
-            rightPadding = 5;
-
-        // FIXME: There has to be a better way...
-        // Gets the rightmost element in the svg tree to determine width.
-        var width = Math.max.apply(null, 
-                                    $('#foobar').find('.exportable')
-                                                .map(function() { 
-                                                        return this.getBoundingClientRect().right; 
-                                                     })
-                                                .toArray());
-
-        //Makes sure the exported image is complete, not cropped.
-        theClone.setAttribute('width', width + rightPadding);
-        saveSvgAsPng(theClone, fileName);
-    },
-
-
-    'render' : function () {
-
-        var props = this.props;
-
-        return (
-            <div>
-                <h3 className='chart-title' >
-                        { this._getChartTitle() }
-                </h3>
-
-				<button className={'btn btn-default ' + 
-                                    ( props.data ? '' : ' disabled')} 
-                        style={{position:'absolute', bottom:'5px',right:'15px'}} 
-                        onClick={this._savePng}>
-                            'Export'
-                </button>
-
-                <svg id = {'foobar' }
-                     width     = '100%'
-                     height    = { props.height }
-                     ref       = 'theSVG'
-                     className = 'chart' >
-                </svg>
-            </div>
-        );
-    },
-});
-
-module.exports = MeasureByQuarterByGeographyVoronoiLineChart;
+module.exports = { newChart : newChart };
