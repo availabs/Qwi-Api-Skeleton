@@ -6,7 +6,7 @@
 var React                 = require('react'),
     d3                    = require('d3'),
     saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
-    linechartUtils        = require('../utils/linechart_utils'),
+    linechartUtils        = require('../../../d3/linecharts/utils'),
     geography_labels      = require('../../../data/labels/geography'),
     category_descriptions = require('../../../data/labels/categories');
 

@@ -4,7 +4,7 @@
 
 var React          = require('react'),
     d3             = require('d3'),
-    linechartUtils = require('../utils/linechart_utils.js');
+    linechartUtils = require('../../../d3/linecharts/utils.js');
 
 
 

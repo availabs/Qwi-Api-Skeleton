@@ -5,7 +5,7 @@ var React = require('react'),
 
 module.exports = {
 
-    'parseDate': d3.time.format("%m-%Y").parse,
+    'parseDate' : d3.time.format("%m-%Y").parse,
 
     // Must bind React component's `this` to the following function.
     'initByQuarterBasics' : function () {
@@ -15,12 +15,12 @@ module.exports = {
             that   = this;
 
     
-        var width  = theSVG.offsetWidth - 
-                     margin.right - 
+        var width  = theSVG.offsetWidth -
+                     margin.right       -
                      margin.left,
 
-            height = this.props.height  - 
-                     margin.top - 
+            height = this.props.height  -
+                     margin.top         -
                      margin.bottom;
 
 
@@ -45,5 +45,4 @@ module.exports = {
                             .x(function(d) { return that._x(d.date); })
                             .y(function(d) { return that._y(d[that.props.measure]); });
     },
-
 };

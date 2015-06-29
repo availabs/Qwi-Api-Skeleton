@@ -2,13 +2,13 @@
 /*globals $ */
 
 /* This file is in the process of a major refactoring.
+ * Similar React components will also need refactoring.
  */                                   
 
 
 var React                 = require('react'),
     d3                    = require('d3'),
     saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
-    linechartUtils        = require('../utils/linechart_utils'),
     geography_labels      = require('../../../data/labels/geography'),
     category_descriptions = require('../../../data/labels/categories'),
     voronoiMultilineChart = require('../../../d3/linecharts/voronoiMultiline');
@@ -30,10 +30,11 @@ var React                 = require('react'),
  *========================================================================*/
 var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
+    '_voronoiChart' : undefined, // Initialized in componentDidMount
+
 
     'componentDidMount': function () {
         this._voronoiChart = voronoiMultilineChart.newChart.call(this);
-        this._parseDate    = linechartUtils.parseDate;
     },
 
 
@@ -47,7 +48,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
     'componentDidUpdate': function (prevProps, prevState) {
         if (this.props.height !== prevProps.height) {
-            linechartUtils.initByQuarterBasics.call(this);
+            this._voronoiChart.init();
         }
 
         this._voronoiChart.update();
@@ -70,19 +71,18 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
         var theSVG       = React.findDOMNode(this.refs.theSVG),
             theClone     = theSVG.cloneNode(true),
             fileName     = this._getChartTitle().replace(/\s+/g, '_'),
-            rightPadding = 5;
+            rightPadding = 5,
 
-        // FIXME: There has to be a better way...
-        // Gets the rightmost element in the svg tree to determine width.
-        var width = Math.max.apply(null, 
-                                    $('#foobar').find('.exportable')
-                                                .map(function() { 
-                                                        return this.getBoundingClientRect().right; 
-                                                     })
-                                                .toArray());
+            // FIXME: There has to be a better way...
+            exportablesRightBounds = $('#foobar').find('.exportable')
+                                                 .map(function() { return this.getBoundingClientRect().right; })
+                                                 .toArray(),
+
+            width = Math.max.apply(null, exportablesRightBounds);
 
         //Makes sure the exported image is complete, not cropped.
         theClone.setAttribute('width', width + rightPadding);
+
         saveSvgAsPng(theClone, fileName);
     },
 

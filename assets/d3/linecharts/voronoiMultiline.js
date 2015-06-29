@@ -8,8 +8,8 @@
 
 var React                 = require('react'),
     d3                    = require('d3'),
+    utils                 = require('./utils'),
     saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
-    linechartUtils        = require('../../react/charts/utils/linechart_utils'),
     geography_labels      = require('../../data/labels/geography'),
     category_descriptions = require('../../data/labels/categories');
 
@@ -17,12 +17,15 @@ var React                 = require('react'),
 
 function newChart () {
 
-    var theComponent = this,
-        color        = d3.scale.category20(),
+    var theComponent   = this,
+        color          = d3.scale.category20(),
+        parseDate      = utils.parseDate,
         quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
 
 
     var theChart = {};
+
+    theChart.init   = utils.initByQuarterBasics.bind(theComponent);
 
     theChart.update = function () {
 
@@ -75,7 +78,7 @@ function newChart () {
 
             datum.year     = d.year.toString().trim();
             datum.quarter  = d.quarter.toString().trim();
-            datum.date     = d.date     = theComponent._parseDate(dateString);
+            datum.date     = d.date     = parseDate(dateString);
             datum[measure] = d[measure] = +d[measure];
 
             dataArr[dataArr.length] = datum;
@@ -106,15 +109,15 @@ function newChart () {
         });
 
 
-        categoriesArr.sort(function(b,a) { 
-            return b.values[b.values.length -1][measure] - a.values[a.values.length -1][measure];
+        categoriesArr.sort(function(a,b) { 
+            return a.values[a.values.length -1][measure] - b.values[b.values.length -1][measure];
         });
 
 
 
         theG = theSVG.append('g')
-                     .style('width',    width)
-                     .style('height',   height - margin.top - margin.bottom)
+                     .style('width'   , width)
+                     .style('height'  , height - margin.top - margin.bottom)
                      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
@@ -161,7 +164,6 @@ function newChart () {
 
                            return 'translate(' + xTranslation + ',' + maxY_translation + ')'; 
                         });
-
         }());
 
 
