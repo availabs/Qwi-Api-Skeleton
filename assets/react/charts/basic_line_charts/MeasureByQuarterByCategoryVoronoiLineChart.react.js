@@ -72,16 +72,23 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             theClone     = theSVG.cloneNode(true),
             fileName     = this._getChartTitle().replace(/\s+/g, '_'),
             rightPadding = 5,
+            exportablesRightBounds,
+            width;
 
-            // FIXME: There has to be a better way...
-            exportablesRightBounds = $('#foobar').find('.exportable')
-                                                 .map(function() { return this.getBoundingClientRect().right; })
-                                                 .toArray(),
-
-            width = Math.max.apply(null, exportablesRightBounds);
+        exportablesRightBounds = $('#foobar').find('.exportable')
+                                             .map(function() { 
+                                                 return this.getBoundingClientRect().right; 
+                                             }).toArray();
 
         //Makes sure the exported image is complete, not cropped.
+        width = Math.max.apply(null, exportablesRightBounds);
+
         theClone.setAttribute('width', width + rightPadding);
+
+        $(theClone).find('.line_label')
+                   .each(function() { 
+                       $(this).css('opacity', 1);
+                   });
 
         saveSvgAsPng(theClone, fileName);
     },

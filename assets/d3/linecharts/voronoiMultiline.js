@@ -146,10 +146,11 @@ function newChart () {
                                                       value       : d.values[d.values.length -1] }; })
                        .attr('x', 3)
                        .attr('dy', '0.35em')
-                       .attr('class', 'exportable')
                        .text(function (d) { return d.label; })
                        .style('font-size', '10px')
                        .style('fill', function(d) { return color(d.subcategory); })
+                       .style('opacity', 0) // Hide the label. Reveal in PNG export.
+                       .attr('class', 'exportable line_label')
                        .attr('transform', function(d, i) { 
                            var yTranslation;
 

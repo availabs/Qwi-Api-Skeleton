@@ -203,10 +203,10 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
     render : function () {
 
         var chartMargins = { 
-                top    : 20,
-                right  : 150 + (this.state.categorySelected === 'industry' ? 150 : 0), //FIXME
+                top    : 15,
+                right  : 15,
                 bottom : 30,
-                left   : 100,
+                left   : 100, //FIXME: Reserve space for axis in chart, not here.
             },
 
             state = this.state,
@@ -272,7 +272,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
         return (
                 <div className='container' >
                     <div className='row top-buffer'>
-                        <div ref='vizArea' className='col-md-11'>
+                        <div ref='vizArea' className='col-md-10'>
                             <LineChart
                                 height          = { this.state.chartHeight      }
                                 margin          = { chartMargins                }
@@ -289,7 +289,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                             />
                         </div>
                         
-                        <div ref='sideBar' className='col-md-1 noWrap'>
+                        <div ref='sideBar' className='col-md-2 noWrap'>
                             <SimpleSideBar
                                 selectors = {[  statesSelector, 
                                                 subgeographySelector,
