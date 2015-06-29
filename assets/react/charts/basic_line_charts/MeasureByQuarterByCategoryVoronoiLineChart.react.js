@@ -101,7 +101,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
                                     ( props.data ? '' : ' disabled')} 
                         style={{position:'absolute', bottom:'5px',right:'15px'}} 
                         onClick={this._savePng}>
-                            'Export'
+                            'Export as PNG'
                 </button>
 
                 <svg id = {'foobar' }

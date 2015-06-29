@@ -35,6 +35,10 @@ var MeasureByQuarterLineChart = React.createClass({
         var quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
 
 
+        data = data.filter(function (d, i) { 
+                    return ((d[measure] !== null) && (d[measure] !== undefined)); 
+                });
+
         data.forEach(function(d) {
             d.date = that._parseDate(quarterToMonth[d.quarter] +'-'+ d.year.toString());
             d[measure] = +d[measure];
@@ -71,7 +75,12 @@ var MeasureByQuarterLineChart = React.createClass({
         theG.append("path")
             .datum(data)
             .attr("class", "line")
-            .attr("d", this._line);
+            .attr("d", this._line)
+            .style('stroke', '#34AECD');
+
+        d3.selectAll('g.tick')
+            .select('line') //grab the tick line
+            .attr('class', 'grid-line');
     },
 
 

@@ -7,7 +7,7 @@ var React                = require('react'),
     geography_labels     = require('../../data/labels/geography.js'),
     measure_labels       = require('../../data/labels/measures.js'),
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
-    LineChart            = require('../charts/basic_line_charts/MeasureByQuarterLineChart.react'),
+    Table                 =require('../tables/DataTable.react'),
     pageUtils            = require('./utils'),
     lodash               = require('lodash');
 
@@ -123,14 +123,14 @@ var MeasureByQuarterForGeography = React.createClass ({
 
     render : function () {
 
-        var chartMargins = { 
-                top: 50, 
-                right: 50, 
-                bottom: 30, 
-                left: 75, 
-            },
+        //var chartMargins = { 
+                //top: 50, 
+                //right: 50, 
+                //bottom: 30, 
+                //left: 75, 
+            //},
 
-            statesSelector = (
+        var statesSelector = (
                 <SingleButtonDropdown 
                     select     = { this.state.pendingQuery ?  void(0) : this._selectState }
                     deselect   = { void(0) }
@@ -153,7 +153,14 @@ var MeasureByQuarterForGeography = React.createClass ({
                     alignRight = { !this.state.isStacked }
                 />
                     
-            );
+            ),
+
+            columns = [
+                { key: 'year'    , name: 'Year' },
+                { key: 'quarter' , name: 'Quarter' },
+                { key: this.state.measureSelected , 
+                  name: this.state.measure_labels[this.state.measureSelected] },
+            ];
 
 
 
@@ -161,17 +168,9 @@ var MeasureByQuarterForGeography = React.createClass ({
                 <div className='container' >
                     <div className='row top-buffer'>
                         <div ref='vizArea' className='col-md-11'>
-                            <LineChart
-                                height         = { this.state.vizHeight }
-                                margin         = { chartMargins }
-
-                                data           = { this.state.data }
-
-                                entity_id      = { this.state.stateSelected }
-                                measure        = { this.state.measureSelected }
-
-                                entity_labels  = { geography_labels}
-                                measure_labels = { measure_labels }
+                            <Table
+                                data    = { this.state.data || [] }
+                                columns = { columns }
                             />
                         </div>
                         
