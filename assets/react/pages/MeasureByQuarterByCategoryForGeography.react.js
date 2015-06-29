@@ -279,7 +279,8 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
                                 data            = { this.state.data             }
 
-                                geography       = { this.state.subgeographySelected || this.state.stateSelected }
+                                geography       = { this.state.subgeographySelected || 
+                                                    this.state.stateSelected }
                                 measure         = { this.state.measureSelected  }
                                 category        = { this.state.categorySelected }
 

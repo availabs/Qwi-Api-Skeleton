@@ -106,7 +106,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
 				<button className={'btn btn-default ' + 
                                     ( props.data ? '' : ' disabled')} 
-                        style={{position:'absolute', bottom:'5px',right:'15px'}} 
+                        style={{position:'absolute', bottom:'5px', right:'15px'}} 
                         onClick={this._savePng}>
                             'Export as PNG'
                 </button>
