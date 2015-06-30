@@ -151,12 +151,12 @@ module.exports = {
                     'ns_op_u';
 
         if (!(geography && measure && category)) {
-            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
+            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geo code.'});
             return;
         } 
 
         query = { select : [ measure, category, 'geography', 'year', 'quarter' ],
-                  where  : lodash.cloneDeep(aggregationDefaults),
+                  where  : lodash.clone(aggregationDefaults),
                 };
 
         query.where.geography = geography;
