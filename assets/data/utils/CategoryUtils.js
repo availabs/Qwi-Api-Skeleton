@@ -4,6 +4,8 @@
 
 var lodash = require('lodash');
 
+
+
 var categories = [
     'agegrp',
     'education',
@@ -15,6 +17,8 @@ var categories = [
     'sex',
 ];
 
+
+
 var tables = {
     'rh_fa' : [ 'race' , 'ethnicity' , 'firmage' , 'industry' ] ,
     'rh_fs' : [ 'race' , 'ethnicity' , 'firmsize', 'industry' ] ,
@@ -23,6 +27,8 @@ var tables = {
     'se_fa' : [ 'sex'  , 'education' , 'firmage' , 'industry' ] ,
     'se_fs' : [ 'sex'  , 'education' , 'firmsize', 'industry' ] ,
 };
+
+
 
 var getValidCombosForCategory = (function () {
     var combos = lodash.values(tables);
@@ -34,10 +40,27 @@ var getValidCombosForCategory = (function () {
     };
 }());
 
+
+
 var validCombos = lodash.reduce(categories, function (result, category) { 
     result[category] = getValidCombosForCategory(category); 
     return result;
 }, {});
+
+
+
+function getRequiredTablePrefix (categories) {
+
+    var prefixes = Object.keys(tables),
+        i;
+
+    for (i = 0; i < prefixes.length; ++i) {
+        if (!lodash.difference(categories, tables[prefixes[i]]).length) {
+            return prefixes[i];
+        }
+    }
+}
+
 
 
 function newDrilldownSelectionGenerator() {
@@ -68,5 +91,8 @@ function newDrilldownSelectionGenerator() {
 
 
 
-module.exports = { newDrilldownSelectionGenerator: newDrilldownSelectionGenerator };
+module.exports = { 
+    getRequiredTablePrefix         : getRequiredTablePrefix,
+    newDrilldownSelectionGenerator : newDrilldownSelectionGenerator,
+};
 
