@@ -1,11 +1,10 @@
 Integrate watchify
-
 Implement a way to import the labels automatically.
-
-Consistent naming for React files.
-
-Integrate ReactRouter and Bootstrap.
-
 Labels data probably should have their own store rather than be bundled up with browserfy.
 
+
+In the DataStore, get the aggregate for the selected category as well.
+    The filter this out in the components, if needed.
+
+Implement Drilldown Category Selector
 

@@ -100,16 +100,20 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
         return (
             <div>
-                <h3 className='chart-title' >
-                        { this._getChartTitle() }
-                </h3>
+                <div className='no-wrap'
+                     style={{position:'relative', width:'100%'}}>
 
-				<button className={'btn btn-default ' + 
-                                    ( props.data ? '' : ' disabled')} 
-                        style={{position:'absolute', bottom:'5px', right:'15px'}} 
-                        onClick={this._savePng}>
-                            'Export as PNG'
-                </button>
+                        <h3 className='chart-title'
+                            style={{float:'left'}}>
+                                { this._getChartTitle() }
+                        </h3>
+
+                        <button className={'btn btn-default ' + ( props.data ? '' : ' disabled')} 
+                                style={{float:'right'}} 
+                                onClick={this._savePng}>
+                                    'Export as PNG'
+                        </button>
+                </div>
 
                 <svg id = {'foobar' }
                      width     = '100%'

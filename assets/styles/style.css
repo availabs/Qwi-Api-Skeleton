@@ -40,8 +40,8 @@ body {
 }
 
 .axis text {
-    fill: white;
-    stroke: #808080;
+    fill   : white;
+    stroke : #808080;
 }
 
 
@@ -104,11 +104,11 @@ div {
 }
 
 .categories {
-  fill: none;
-  stroke: #aaa;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  stroke-width: 1.5px;
+  fill            : none;
+  stroke          : #aaa;
+  stroke-linejoin : round;
+  stroke-linecap  : round;
+  stroke-width    : 1.5px;
 }
 
 .line {
@@ -133,10 +133,15 @@ div {
 
 
 .grid-line {
-    stroke: #808080;
-    stroke-opacity: 0.2;
+    stroke         : #808080;
+    stroke-opacity : 0.2;
 }
 
 .table {
     background-color: #6A6B6E;
+}
+
+.no-wrap {
+    padding : 0;
+    margin  : 0;
 }
