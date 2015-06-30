@@ -4,6 +4,8 @@
 
 // TODO: This code is in the early phase of a major refactoring.
 //          Lots more needed.
+// TODO: Generalize this. Make it reusable.
+//          Get rid of the single use case assumptions.
 //
 
 var React                 = require('react'),

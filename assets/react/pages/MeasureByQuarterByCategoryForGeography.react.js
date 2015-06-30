@@ -10,6 +10,8 @@ var React                = require('react'),
     measure_labels       = require('../../data/labels/measures'),
     category_labels      = require('../../data/labels/categories'),
 
+    aggregationDefaults  = require('../../data/aggregation_categories/defaults'),
+
     theStore             = require('../../flux/stores/QuarterlyMeasureByGeographyStore'),
 
     LineChart            = require('../charts/basic_line_charts/MeasureByQuarterByCategoryVoronoiLineChart.react.js'),
@@ -95,7 +97,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
              categorySelected     : null,
 
              pendingQuery         : null,
-             data                 : null,
+             data                 : [],
 
              chartHeight          : 1,
              isStacked            : undefined,
@@ -175,7 +177,9 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
 
 
+    //FIXME: Possible Async Problem!!!
     '_queryDataStore' : function (query) {
+        
         var data     = theStore.getMeasureByQuarterByCategoryForGeography(query),
             newState = {
                 stateSelected        : query.geography.substring(0, 2)      ,
@@ -202,12 +206,18 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
     render : function () {
 
-        var chartMargins = { 
+        var category = this.state.categorySelected,
+            
+            chartMargins = { 
                 top    : 15,
                 right  : 15,
                 bottom : 30,
                 left   : 100, //FIXME: Reserve space for axis in chart, not here.
             },
+
+            data = this.state.data.filter(function (d) {
+                        return d[category] !== aggregationDefaults[category];
+                   }),
 
             state = this.state,
 
@@ -277,7 +287,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                                 height          = { this.state.chartHeight      }
                                 margin          = { chartMargins                }
 
-                                data            = { this.state.data             }
+                                data            = { data                        }
 
                                 geography       = { this.state.subgeographySelected || 
                                                     this.state.stateSelected }
