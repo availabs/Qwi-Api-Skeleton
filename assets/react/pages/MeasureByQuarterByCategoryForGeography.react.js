@@ -1,3 +1,5 @@
+/* global $ */
+
 'use strict';
 
 
@@ -5,6 +7,7 @@ var React                = require('react'),
 
     SimpleSideBar        = require('../components/layout/SimpleSideBar.react'),
     SingleButtonDropdown = require('../components/ui/SingleButtonDropdown.react'),
+    SavePNGButton        = require('../components/ui/SaveAsPNG_Button.react'),
 
     geography_labels     = require('../../data/labels/geography'),
     measure_labels       = require('../../data/labels/measures'),
@@ -22,16 +25,25 @@ var React                = require('react'),
 
 var categoryLabelsTable  = {
     
-    industry  : require('../../data/labels/industry'),
-    sex       : require('../../data/labels/sex'),
-    agegrp    : require('../../data/labels/agegrp'),
-    race      : require('../../data/labels/race'),
-    ethnicity : require('../../data/labels/ethnicity'),
-    education : require('../../data/labels/education'),
-    firmage   : require('../../data/labels/firmage'),
-    firmsize  : require('../../data/labels/firmsize'),
+    industry  : require('../../data/labels/industry')  ,
+    sex       : require('../../data/labels/sex')       ,
+    agegrp    : require('../../data/labels/agegrp')    ,
+    race      : require('../../data/labels/race')      ,
+    ethnicity : require('../../data/labels/ethnicity') ,
+    education : require('../../data/labels/education') ,
+    firmage   : require('../../data/labels/firmage')   ,
+    firmsize  : require('../../data/labels/firmsize')  ,
 
 };
+
+
+function preprocessChartSVGForExport (theClone) {
+    $(theClone).find('.line_label')
+               .each(function() { 
+                         $(this).css('opacity', 1);
+                     });
+}
+
 
 
 
@@ -86,21 +98,21 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                                         }, {});
 
         return { 
-             state_labels         : state_labels,
-             subgeography_labels  : subgeography_labels,
-             measure_labels       : measure_labels,
-             category_labels      : category_labels,
+             state_labels         : state_labels        ,
+             subgeography_labels  : subgeography_labels ,
+             measure_labels       : measure_labels      ,
+             category_labels      : category_labels     ,
 
-             stateSelected        : null,
-             subgeographySelected : null,
-             measureSelected      : null,
-             categorySelected     : null,
+             stateSelected        : null                ,
+             subgeographySelected : null                ,
+             measureSelected      : null                ,
+             categorySelected     : null                ,
 
-             pendingQuery         : null,
-             data                 : [],
+             pendingQuery         : null                ,
+             data                 : []                  ,
 
-             chartHeight          : 1,
-             isStacked            : undefined,
+             chartHeight          : 1                   ,
+             isStacked            : undefined           ,
         };
     },
 
@@ -182,12 +194,12 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
         
         var data     = theStore.getMeasureByQuarterByCategoryForGeography(query),
             newState = {
-                stateSelected        : query.geography.substring(0, 2)      ,
+                stateSelected        : query.geography.substring(0, 2)                       ,
                 subgeographySelected : (query.geography.length > 2) ? query.geography : null ,
-                measureSelected      : query.measure                        ,
-                categorySelected     : query.category                       ,
-                pendingQuery         : data ? null : query                  ,
-                data                 : data                                 ,
+                measureSelected      : query.measure                                         ,
+                categorySelected     : query.category                                        ,
+                pendingQuery         : data ? null : query                                   ,
+                data                 : data                                                  ,
             };
             
         this.setState(newState);
@@ -197,16 +209,33 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
     '_handleResultReadyEvent' : function (eventPayload) {
         if (eventPayload === this.state.pendingQuery) {
             this.setState({ 
-                pendingQuery : null,
-                data         : eventPayload.data,
+                pendingQuery : null              ,
+                data         : eventPayload.data ,
             });
         }
     },
 
 
-    render : function () {
+
+    '_getChartTitle': function () {
+        var state = this.state;
+
+        return  ( measure_labels[state.measureSelected]     || '<QWI Measure>'  ) + 
+                ' by quarter by ' +
+                ( category_labels[state.categorySelected]   || '<QWI Category>' ) +
+                ' for '           +
+                ( geography_labels[state.geographySelected] || '<Geo Area>'     );
+    },
+
+
+
+
+    'render' : function () {
 
         var category = this.state.categorySelected,
+
+            chartID    = 'measureByQuarterByCategoryVoronoiLineChart',
+            chartTitle = this._getChartTitle(),
             
             chartMargins = { 
                 top    : 15,
@@ -215,7 +244,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                 left   : 100, //FIXME: Reserve space for axis in chart, not here.
             },
 
-            data = this.state.data.filter(function (d) {
+            data = this.state.data && this.state.data.filter(function (d) {
                         return d[category] !== aggregationDefaults[category];
                    }),
 
@@ -225,13 +254,13 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                 <SingleButtonDropdown 
                     select     = { state.pendingQuery ?
                                         void(0)       :
-                                        this._selectState }
-                    deselect   = { void(0)                   }
-                    selection  = { state.state_labels        }
+                                        this._selectState                                  }
+                    deselect   = { void(0)                                                 }
+                    selection  = { state.state_labels                                      }
                     selected   = { state.subgeographySelected ? null : state.stateSelected }
-                    title      = { 'States'                  }
-                    dropUp     = { state.isStacked           }
-                    alignRight = { !state.isStacked          }
+                    title      = { 'States'                                                }
+                    dropUp     = { state.isStacked                                         }
+                    alignRight = { !state.isStacked                                        }
                 />
             ),
 
@@ -239,13 +268,13 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                 <SingleButtonDropdown 
                     select     = { (state.pendingQuery || !state.stateSelected) ?
                                         void(0)                                 :
-                                        this._selectSubgeography                  }
-                    deselect   = { void(0)                                        }
+                                        this._selectSubgeography                        }
+                    deselect   = { void(0)                                              }
                     selection  = { state.subgeography_labels[state.stateSelected] || [] }
-                    selected   = { state.subgeographySelected                     }
-                    title      = { 'Sub-Geographies'                              }
-                    dropUp     = { state.isStacked                                }
-                    alignRight = { !state.isStacked                               }
+                    selected   = { state.subgeographySelected                           }
+                    title      = { 'Sub-Geographies'                                    }
+                    dropUp     = { state.isStacked                                      }
+                    alignRight = { !state.isStacked                                     }
                 />
             ),
 
@@ -253,7 +282,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
             measureSelector = (
                 <SingleButtonDropdown
                     select     = { state.pendingQuery ?
-                                        void(0)            :
+                                        void(0)       :
                                         this._selectMeasure }
                     deselect   = { void(0)                  }
                     selection  = { state.measure_labels     }
@@ -263,6 +292,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                     alignRight = { !state.isStacked         }
                 />
             ),
+
 
             categorySelector = (
                 <SingleButtonDropdown
@@ -276,6 +306,19 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                     dropUp     = { state.isStacked           }
                     alignRight = { !state.isStacked          }
                 />
+            ),
+            
+
+
+            saveSvgAsPngButton = (
+                <SavePNGButton 
+                    svgID           = { chartID                     }
+                    enabled         = { !!(data && data.length)     }
+                    padding         = { { right: 5 }                }
+                    pre_process     = { preprocessChartSVGForExport }
+                    defaultFileName = { chartTitle                  }
+                    text            = { 'Export as PNG'             }
+                />
             );
 
 
@@ -284,19 +327,21 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                     <div className='row top-buffer'>
                         <div ref='vizArea' className='col-md-10'>
                             <LineChart
-                                height          = { this.state.chartHeight      }
-                                margin          = { chartMargins                }
+                                height          = { this.state.chartHeight             }
+                                margin          = { chartMargins                       }
 
-                                data            = { data                        }
+                                data            = { data                               }
 
-                                geography       = { this.state.subgeographySelected || 
-                                                    this.state.stateSelected }
-                                measure         = { this.state.measureSelected  }
-                                category        = { this.state.categorySelected }
+                                geography       = { this.state.subgeographySelected ||
+                                                    this.state.stateSelected           }
+                                measure         = { this.state.measureSelected         }
+                                category        = { this.state.categorySelected        }
 
-                                measure_labels  = { measure_labels              }
+                                chartID         = { chartID                            }
+                                chartTitle      = { chartTitle                         }
+
+                                measure_labels  = { measure_labels                                   }
                                 category_labels = { categoryLabelsTable[this.state.categorySelected] }
-
                             />
                         </div>
                         
@@ -305,7 +350,8 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                                 selectors = {[  statesSelector, 
                                                 subgeographySelector,
                                                 measureSelector, 
-                                                categorySelector  ]}
+                                                categorySelector,
+                                                saveSvgAsPngButton  ]}
                             />
                         </div>
                     </div>
