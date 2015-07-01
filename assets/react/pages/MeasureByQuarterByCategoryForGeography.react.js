@@ -202,7 +202,40 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
     render : function () {
 
+<<<<<<< Updated upstream
         var chartMargins = { 
+=======
+    '_getChartTitle': function () {
+        var state = this.state,
+            geography;
+            
+            if (state.subgeographySelected) {
+                geography = geography_labels[state.subgeographySelected];
+            } else {
+                geography = (state.stateSelected)                          ?
+                                geography_labels[this.state.stateSelected] :
+                                '<Geo Area>'                               ;
+            }
+
+        return  ( measure_labels[state.measureSelected]     || '<QWI Measure>'  )  +
+                ' by quarter by '                                                  +
+                ( category_labels[state.categorySelected]   || '<QWI Category>' )  +
+                ' for '                                                            +
+                geography;
+    },
+
+
+
+
+    'render' : function () {
+
+        var category = this.state.categorySelected,
+
+            chartID    = 'measureByQuarterByCategoryVoronoiLineChart',
+            chartTitle = this._getChartTitle(),
+            
+            chartMargins = { 
+>>>>>>> Stashed changes
                 top    : 15,
                 right  : 15,
                 bottom : 30,

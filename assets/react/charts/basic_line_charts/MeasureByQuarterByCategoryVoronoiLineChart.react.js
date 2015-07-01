@@ -7,10 +7,12 @@
 
 
 var React                 = require('react'),
+<<<<<<< Updated upstream
     d3                    = require('d3'),
     saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
+=======
+>>>>>>> Stashed changes
     geography_labels      = require('../../../data/labels/geography'),
-    category_descriptions = require('../../../data/labels/categories'),
     voronoiMultilineChart = require('../../../d3/linecharts/voronoiMultiline');
 
 
