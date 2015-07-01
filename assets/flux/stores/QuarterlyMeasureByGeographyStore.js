@@ -43,17 +43,6 @@ var thisStore = assign({}, EventEmitter.prototype, {
         this.removeListener(QUERY_RESPONSE_READY, callback);
     },
 
-    '_handleQuery': function (query) {
-    
-        var stringifiedQuery = _stringifyQueryObject(query);
-        
-        if (_data[stringifiedQuery]) {
-            return _data[stringifiedQuery];
-        } else {
-            SailsWebApi[query.description](query);
-            return null;
-        }
-    },
 
     'getMeasureForAllCountiesInState': function (query) {
         query.description = 'getMeasureForAllCountiesInState';
@@ -75,6 +64,22 @@ var thisStore = assign({}, EventEmitter.prototype, {
     },
 
 
+
+    '_handleQuery': function (query) {
+    
+        var stringifiedQuery = _stringifyQueryObject(query);
+        
+        //TODO: This should just do one thing.
+        //      Hand-off to handleQueryResult if cached.
+        if (_data[stringifiedQuery]) {
+            return _data[stringifiedQuery];
+        } else {
+            SailsWebApi[query.description](query);
+            return null;
+        }
+    },
+
+
     'handleQueryResult': function (query) {
         var stringifiedQuery = _stringifyQueryObject(query);
 
@@ -82,7 +87,6 @@ var thisStore = assign({}, EventEmitter.prototype, {
 
         this.emitQueryResponseReadyEvent(query);
     },
-
 });
 
 

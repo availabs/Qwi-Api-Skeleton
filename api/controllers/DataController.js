@@ -4,7 +4,8 @@
 
 
 
-var aggregationDefaults = require('../../assets/data/aggregation_categories/defaults.js'),
+var aggregationDefaults = require('../../assets/data/aggregation_categories/defaults'),
+    qwiCategoryUtils    = require('../../assets/data/utils/CategoryUtils'), 
     lodash              = require('lodash');
 
 
@@ -19,20 +20,6 @@ var tables = {
     se_fa_gc_ns_op_u : true ,
     se_fs_gc_ns_op_u : true ,
 };
-
-var workerCharacteristics = {
-    agegrp    : 'sa',
-    education : 'se',
-    ethnicity : 'rh',
-    race      : 'rh',
-    sex       : 'sa',
-};
-
-var firmCharacteristics = {
-    firmage  : 'fa',
-    firmsize : 'fs',
-};
-
 
 
 module.exports = {
@@ -136,31 +123,49 @@ module.exports = {
 
         var params               = req.params,
             measure              = params.measure,
-            category             = params.category,
-            geography            = params.geography && params.geography.trim(),
-            workerCharacteristic = workerCharacteristics[category] || 'rh',
-            firmCharacteristic   = firmCharacteristics[category]   || 'fa',
+            geography            = params.geography.trim(), //TODO: Verify won't crash the server.
+            categories           = params.category.split(','),
+
             geoLevel             = (params.geography.length <= 5) ? 'gc' :
                                         (params.geography.length < 8) ? 'gm' : 'gw',
+
             tableName,
+            aggregated,
+            selectClause,
+            whereClause,
             query;
 
-        tableName = workerCharacteristic + '_' + 
-                    firmCharacteristic   + '_' +
-                    geoLevel             + '_' +
-                    'ns_op_u';
 
-        if (!(geography && measure && category)) {
-            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geography code.'});
+        if (!(geography && measure && categories.length)) {
+            res.send(500, {'ERROR': 'Must specify the QWI measure and the 2-digit state geo code.'});
             return;
         } 
 
-        query = { select : [ measure, category, 'geography', 'year', 'quarter' ],
-                  where  : lodash.cloneDeep(aggregationDefaults),
+
+        tableName = qwiCategoryUtils.getRequiredTablePrefix(categories);
+
+        if (!tableName) {
+            res.send(500, {'ERROR': 'Invalid combination of categories.'});
+            return;
+        }
+
+        tableName += '_' + geoLevel + '_ns_op_u';    
+
+
+
+        categories   = categories.map(function(c) { return c.trim(); });
+
+        selectClause = lodash.union([measure, 'geography', 'year', 'quarter'], categories);
+
+        aggregated   = lodash.difference(Object.keys(aggregationDefaults), categories);
+
+        whereClause  = lodash.pick(aggregationDefaults, aggregated);
+        whereClause.geography = geography;
+
+        query = { select : selectClause,
+                  where  : whereClause,
                 };
 
-        query.where.geography = geography;
-        query.where[category] = { not: aggregationDefaults[category] };
 
         console.log();
         console.log(tableName);

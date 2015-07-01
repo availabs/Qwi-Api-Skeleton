@@ -4,12 +4,17 @@
 
 // TODO: This code is in the early phase of a major refactoring.
 //          Lots more needed.
+// TODO: Generalize this. Make it reusable.
+//          Get rid of the single use case assumptions.
 //
+
+// The parsing of data must be done before handing it to this module.
+// That would make it generally applicable.
+// No longer bind to the component. Give it its own `this`.
 
 var React                 = require('react'),
     d3                    = require('d3'),
     utils                 = require('./utils'),
-    saveSvgAsPng          = require('save-svg-as-png').saveSvgAsPng,
     geography_labels      = require('../../data/labels/geography'),
     category_descriptions = require('../../data/labels/categories');
 
@@ -109,6 +114,7 @@ function newChart () {
         });
 
 
+        // For stacking the labels.
         categoriesArr.sort(function(a,b) { 
             return a.values[a.values.length -1][measure] - b.values[b.values.length -1][measure];
         });
@@ -134,10 +140,14 @@ function newChart () {
             .style('stroke', function(d) { return color(d.subcategory); });
 
 
+        // Add the labels to the lines. 
+        // The labels are stacked so that they do not obscure each other.
+        //
         (function() {
             var maxY_translation = Number.POSITIVE_INFINITY,
                 xTranslation     = d3.max(categoriesArr, function(d) { 
-                                            return theComponent._x(d.values[d.values.length -1].date); }),
+                                        return theComponent._x(d.values[d.values.length -1].date); 
+                                   }),
                 lineLabelHeight;
 
             categoriesG.append('text')
