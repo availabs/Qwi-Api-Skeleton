@@ -33,7 +33,6 @@ var categoryLabelsTable  = {
     education : require('../../data/labels/education') ,
     firmage   : require('../../data/labels/firmage')   ,
     firmsize  : require('../../data/labels/firmsize')  ,
-
 };
 
 
@@ -43,7 +42,6 @@ function preprocessChartSVGForExport (theClone) {
                          $(this).css('opacity', 1);
                      });
 }
-
 
 
 
@@ -327,14 +325,11 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                     defaultFileName = { chartTitle                  }
                     text            = { 'Export as PNG'             }
                 />
-            );
+            ),
 
-
-        return (
-                <div className='container' >
-                    <div className='row top-buffer'>
-                        <div ref='vizArea' className='col-md-10'>
-                            <LineChart
+            
+            linechart = (this,state.chartHeight > 100) ?
+                        (   <LineChart
                                 height          = { this.state.chartHeight             }
                                 margin          = { chartMargins                       }
 
@@ -351,8 +346,17 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                                 measure_labels  = { measure_labels                                   }
                                 category_labels = { categoryLabelsTable[this.state.categorySelected] }
                             />
+                        ) :
+                        (<h5>{'Not enough screen space to render the line chart.'}</h5>);
+                            
+
+
+        return (
+                <div className='container' >
+                    <div className='row top-buffer'>
+                        <div ref='vizArea' className='col-md-10'>
+                            { linechart } 
                         </div>
-                        
                         <div ref='sideBar' className='col-md-2 noWrap'>
                             <SimpleSideBar
                                 selectors = {[  statesSelector, 
