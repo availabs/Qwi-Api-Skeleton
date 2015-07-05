@@ -20,6 +20,7 @@ var React                = require('react'),
     LineChart            = require('../charts/basic_line_charts/MeasureByQuarterByCategoryVoronoiLineChart.react.js'),
 
     pageUtils            = require('./utils'),
+    d3Utils              = require('../../d3/linecharts/utils'),
     lodash               = require('lodash');
 
 
@@ -203,6 +204,48 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
         this.setState(newState);
     },
 
+//FIXME: Lines only render the first time. After that error.
+
+    '_parseTheData' : function (theData) {
+    
+        var measure              = this.state.measureSelected,
+            category             = this.state.categorySelected,
+            categoryLabels       = categoryLabelsTable[category],
+            subcategoriesDataObj = {};
+
+        if (!theData) { return []; } //FIXME: hack
+
+        theData.forEach(function(d) {
+
+            if (d[measure] === null || d[measure] === undefined) { return; }
+
+            if (d[category].trim() === aggregationDefaults[category]) { return; }
+
+            var subcategory = categoryLabels[d[category].trim()],
+                dataArr     = subcategoriesDataObj[subcategory],
+                datum       = {};
+
+            if (!dataArr) {
+                dataArr = subcategoriesDataObj[subcategory] = [];
+            } 
+
+            datum.key   = d3Utils.parseQuarterToDate(d.quarter, d.year);
+            datum.value = +d[measure];
+
+            dataArr[dataArr.length] = datum;
+        });
+
+
+        return Object.keys(subcategoriesDataObj)
+                     .reduce(function(accumulator, key) { 
+                                 accumulator[accumulator.length] = { key   : key, 
+                                                                     values: subcategoriesDataObj[key] }; 
+                                 return accumulator; 
+                     }, []);
+    },
+
+
+
 
     '_handleResultReadyEvent' : function (eventPayload) {
         if (eventPayload === this.state.pendingQuery) {
@@ -238,9 +281,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
     'render' : function () {
 
-        var category = this.state.categorySelected,
-
-            chartID    = 'measureByQuarterByCategoryVoronoiLineChart',
+        var chartID    = 'measureByQuarterByCategoryVoronoiLineChart',
             chartTitle = this._getChartTitle(),
             
             chartMargins = { 
@@ -250,9 +291,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                 left   : 100, //FIXME: Reserve space for axis in chart, not here.
             },
 
-            data = this.state.data && this.state.data.filter(function (d) {
-                        return d[category] !== aggregationDefaults[category];
-                   }),
+            data = this._parseTheData(this.state.data),
 
             state = this.state,
 
@@ -328,7 +367,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
             ),
 
             
-            linechart = (this,state.chartHeight > 100) ?
+            linechart = (this.state.chartHeight > 100) ?
                         (   <LineChart
                                 height          = { this.state.chartHeight             }
                                 margin          = { chartMargins                       }

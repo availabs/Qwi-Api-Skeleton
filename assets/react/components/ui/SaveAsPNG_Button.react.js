@@ -9,7 +9,7 @@ var React        = require('react'),
 /*===========================================
  * 
  * props:
- *          theSVG -- root DOM SVG element to export
+ *          svgID -- id of the SVG to export
  *          enabled
  *          [pre_process]
  *          [padding]

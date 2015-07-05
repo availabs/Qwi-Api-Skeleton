@@ -14,6 +14,7 @@
 
 var React                 = require('react'),
     d3                    = require('d3'),
+    lodash                = require('lodash'),
     utils                 = require('./utils'),
     geography_labels      = require('../../data/labels/geography'),
     category_descriptions = require('../../data/labels/categories');
@@ -24,18 +25,17 @@ function newChart () {
 
     var theComponent   = this,
         color          = d3.scale.category20(),
-        parseDate      = utils.parseDate,
-        quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
+        parseDate      = utils.parseDate;
 
 
     var theChart = {};
 
     theChart.init   = utils.initByQuarterBasics.bind(theComponent);
 
-    theChart.update = function () {
+    theChart.render = function () {
 
         var props    = theComponent.props,
-            data     = props.data || [],
+            theData  = props.data || [],
             measure  = props.measure,
             category = props.category,
 
@@ -48,13 +48,15 @@ function newChart () {
             width    = svgNode.offsetWidth,
             margin   = props.margin,
 
-            subcategoriesDataObj,
             categoriesVoronoiObj,
-            categoriesArr;
+            categoriesArr,
+
+            i, ii;
+
 
         var voronoi = d3.geom.voronoi()
-                             .x(function(d) { return theComponent._x(d.date); })
-                             .y(function(d) { return theComponent._y(d[measure]); })
+                             .x(function(d) { return theComponent._x(d.key); })
+                             .y(function(d) { return theComponent._y(d.value); })
                              .clipExtent([[ -margin.left, -margin.top], 
                                           [ width + margin.right, height + margin.bottom]]);
 
@@ -63,60 +65,28 @@ function newChart () {
         // TODO: Try to just remove the axes, then use `exit` on the chart.
         theSVG.selectAll('*').remove();
 
+        color.domain(Object.keys(theData.map(function(d) { return d.key; })));
 
-        // Parse the data.
-        subcategoriesDataObj = {};
-        data.forEach(function(d) {
 
-            if (d[measure] === null || d[measure] === undefined) { return; }
+        function getNestedExtents (fieldName) {
+            return d3.extent(theData.map(function(d) { return d3.extent(d.values, function(d) { return d[fieldName]; }); }) 
+                                    .reduce(function(agg, cur) { return agg.concat(cur); }, [])
+                            );
+        } 
 
-            var subcategory = d[category].trim(),
-                dataArr     = subcategoriesDataObj[subcategory],
-                dateString  = quarterToMonth[d.quarter] +'-'+ d.year.toString(),
-                datum       = {};
+        theComponent._x.domain(getNestedExtents('key'));
+        theComponent._y.domain(getNestedExtents('value'));
 
-            d[category] = subcategory;
 
-            if (!dataArr) {
-                dataArr = subcategoriesDataObj[subcategory] = [];
+        for (i = 0; i < theData.length; ++i) {
+            for (ii = 0; ii < theData[i].values.length; ++ii) {
+                theData[i].values[ii].circularRef = theData[i]; 
             } 
-
-            datum.year     = d.year.toString().trim();
-            datum.quarter  = d.quarter.toString().trim();
-            datum.date     = d.date     = parseDate(dateString);
-            datum[measure] = d[measure] = +d[measure];
-
-            dataArr[dataArr.length] = datum;
-        });
-
-
-        color.domain(Object.keys(subcategoriesDataObj));
-
-        theComponent._x.domain(d3.extent(data, function(d) { return d.date;     }));
-        theComponent._y.domain(d3.extent(data, function(d) { return d[measure]; }));
-
-
-        // Turn the parsed data into an array of data
-        // structured for the voronoi algorithm.
-        categoriesArr = Object.keys(subcategoriesDataObj).map(function (subcategory) {
-            var data = { 
-                subcategory : subcategory ,
-                values      : null        ,
-            };
-
-            data.values = subcategoriesDataObj[subcategory].map(function(datumForQuarter) {
-                datumForQuarter.circularRef = data;
-
-                return datumForQuarter;
-            });
-
-            return data;
-        });
-
+        }
 
         // For stacking the labels.
-        categoriesArr.sort(function(a,b) { 
-            return a.values[a.values.length -1][measure] - b.values[b.values.length -1][measure];
+        theData.sort(function(a,b) { 
+            return a.values[a.values.length -1].value - b.values[b.values.length -1].value;
         });
 
 
@@ -128,7 +98,7 @@ function newChart () {
 
 
         categoriesG = theG.selectAll('.category')
-                          .data(categoriesArr)
+                          .data(theData)
                         .enter().append('g')
                           .attr('class', 'category exportable');
 
@@ -137,7 +107,7 @@ function newChart () {
             .attr('d', function (d) {
                            d.line = this;
                            return theComponent._line(d.values); })
-            .style('stroke', function(d) { return color(d.subcategory); });
+            .style('stroke', function(d) { return color(d.key); });
 
 
         // Add the labels to the lines. 
@@ -145,20 +115,19 @@ function newChart () {
         //
         (function() {
             var maxY_translation = Number.POSITIVE_INFINITY,
-                xTranslation     = d3.max(categoriesArr, function(d) { 
-                                        return theComponent._x(d.values[d.values.length -1].date); 
+                xTranslation     = d3.max(theData, function(d) { 
+                                        return theComponent._x(d.values[d.values.length -1].key); 
                                    }),
                 lineLabelHeight;
 
             categoriesG.append('text')
-                       .datum(function (d) { return { subcategory : d.subcategory,
-                                                      label       : props.category_labels[d.subcategory],
-                                                      value       : d.values[d.values.length -1] }; })
+                       .datum(function (d) { return { key   : d.key,
+                                                      value : d.values[d.values.length -1].value }; })
                        .attr('x', 3)
                        .attr('dy', '0.35em')
-                       .text(function (d) { return d.label; })
+                       .text(function (d) { return d.key; })
                        .style('font-size', '10px')
-                       .style('fill', function(d) { return color(d.subcategory); })
+                       .style('fill', function(d) { return color(d.key); })
                        .style('opacity', 0) // Hide the label. Reveal in PNG export.
                        .attr('class', 'exportable line_label')
                        .attr('transform', function(d, i) { 
@@ -168,7 +137,7 @@ function newChart () {
                                lineLabelHeight = this.getBoundingClientRect().height; 
                            }
                            
-                           yTranslation = Math.min(theComponent._y(d.value[measure]) + lineLabelHeight, 
+                           yTranslation = Math.min(theComponent._y(d.value) + lineLabelHeight, 
                                                    maxY_translation);
 
                            maxY_translation = yTranslation - Math.ceil(lineLabelHeight/2.0) - 2;
@@ -194,12 +163,11 @@ function newChart () {
 
         voronoiGroup.selectAll("path")
                     .data(voronoi(d3.nest()
-                                    .key(function (d) { return theComponent._x(d.date) + 
+                                    .key(function (d) { return theComponent._x(d.key) + 
                                                                 "," + 
-                                                                theComponent._y(d[measure]); })
+                                                                theComponent._y(d.value); })
                                     .rollup(function (v) { return v[0]; })
-                                    .entries(d3.merge(categoriesArr.map(function (d) { 
-                                                                            return d.values; })))
+                                    .entries(d3.merge(theData.map(function (d) { return d.values; })))
                                     .map(function(d) { return d.values; })))
                     .enter().append("path")
                             .attr("d", function(d) { return "M" + d.join("L") + "Z"; })
@@ -207,15 +175,11 @@ function newChart () {
                             .on("mouseover", mouseover)
                             .on("mouseout", mouseout);
 
-        d3.select("#show-voronoi")
-          .property("disabled", false)
-          .on("change", function() { voronoiGroup.classed("voronoi--show", theComponent.checked); });
-
 
         function mouseover(d) {
             var textNode       = focus.select('text'),
                 textNodeHeight = textNode.node().getBBox().height,
-                pointYCoord    = theComponent._y(d[measure]),
+                pointYCoord    = theComponent._y(d.value),
 
                 // Make sure the text node is within the chart.
                 textNodeYCoord = ((pointYCoord - textNodeHeight) > 0) ? 
@@ -228,7 +192,7 @@ function newChart () {
             d.circularRef.line.parentNode.appendChild(d.circularRef.line);
 
             focus.attr("transform", "translate(" + 
-                                     theComponent._x(d.date) + "," + textNodeYCoord + ")");
+                                     theComponent._x(d.key) + "," + textNodeYCoord + ")");
 
             textNode.selectAll('*').remove();
 
@@ -237,23 +201,23 @@ function newChart () {
                                           '5px 5px 5px black,' +
                                           '5px 5px 5px black'  )
                     .style('font-size', '20px')
-                    .style('stroke', color(d.circularRef.subcategory) )
+                    .style('stroke', color(d.circularRef.key) )
                     .style('fill', 'white');
 
             textNode.append('tspan')
                 .attr('x', 0)
                 .attr('dy', '1.2em')
-                .text(props.category_labels[d.circularRef.subcategory]);
+                .text(d.circularRef.key);
                 
             textNode.append('tspan')
                 .attr('x', 0)
                 .attr('dy', '1.2em')
-                .text(d.year + ' Q' + d.quarter);
+                .text(d.key);
 
             textNode.append('tspan')
                 .attr('x', 0)
                 .attr('dy', '1.2em')
-                .text(measure + ': ' + d[measure]);
+                .text(measure + ': ' + d.value);
         }
 
         function mouseout(d) {

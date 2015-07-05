@@ -31,6 +31,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
     'componentDidMount': function () {
         this._voronoiChart = voronoiMultilineChart.newChart.call(this);
+        this._voronoiChart.init();
     },
 
 
@@ -47,7 +48,7 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             this._voronoiChart.init();
         }
 
-        this._voronoiChart.update();
+        this._voronoiChart.render();
     },
 
 

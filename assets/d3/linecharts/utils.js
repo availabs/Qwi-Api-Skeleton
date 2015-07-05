@@ -3,9 +3,27 @@
 var React = require('react'),
     d3    = require('d3');
 
+
+
+var parseDate      = d3.time.format("%m-%Y").parse,
+
+    quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
+
+
+function parseQuarterToDate (quarter, year) {
+    return parseDate(quarterToMonth[quarter] + '-' + year);
+}
+
+
+
 module.exports = {
 
-    'parseDate' : d3.time.format("%m-%Y").parse,
+    parseDate          : parseDate,
+
+    quarterToMonth     : quarterToMonth,
+
+    parseQuarterToDate : parseQuarterToDate,
+
 
     // Must bind React component's `this` to the following function.
     'initByQuarterBasics' : function () {
@@ -42,7 +60,7 @@ module.exports = {
                             .innerTickSize(-width);
 
         this._line  = d3.svg.line()
-                            .x(function(d) { return that._x(d.date); })
-                            .y(function(d) { return that._y(d[that.props.measure]); });
+                            .x(function(d) { return that._x(d.key); })
+                            .y(function(d) { return that._y(d.value); });
     },
 };
