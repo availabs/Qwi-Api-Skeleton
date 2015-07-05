@@ -212,7 +212,7 @@ function newChart () {
             textNode.append('tspan')
                 .attr('x', 0)
                 .attr('dy', '1.2em')
-                .text(d.key);
+                .text((props.keyParser) ? props.keyParser(d.key) : d.key);
 
             textNode.append('tspan')
                 .attr('x', 0)

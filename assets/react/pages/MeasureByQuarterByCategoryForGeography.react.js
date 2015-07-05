@@ -384,6 +384,8 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
                                 measure_labels  = { measure_labels                                   }
                                 category_labels = { categoryLabelsTable[this.state.categorySelected] }
+
+                                keyParser       = { d3Utils.parseDateToQuarterYear }
                             />
                         ) :
                         (<h5>{'Not enough screen space to render the line chart.'}</h5>);

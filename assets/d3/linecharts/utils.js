@@ -1,28 +1,39 @@
 'use strict';
 
-var React = require('react'),
-    d3    = require('d3');
+var React  = require('react'),
+    d3     = require('d3'),
+    lodash = require('lodash');
 
 
 
 var parseDate      = d3.time.format("%m-%Y").parse,
 
-    quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' };
+    quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' },
+
+    monthToQuarter = lodash.invert(quarterToMonth);
 
 
 function parseQuarterToDate (quarter, year) {
     return parseDate(quarterToMonth[quarter] + '-' + year);
 }
 
+function parseDateToQuarterYear (date) {
+    return 'Q' + monthToQuarter[('0' + (date.getMonth() + 1)).slice(-2)] + '-' +  (date.getYear() + 1900);
+}
+
 
 
 module.exports = {
 
-    parseDate          : parseDate,
+    parseDate              : parseDate,
 
-    quarterToMonth     : quarterToMonth,
+    quarterToMonth         : quarterToMonth,
 
-    parseQuarterToDate : parseQuarterToDate,
+    monthToQuarter         : monthToQuarter,
+
+    parseQuarterToDate     : parseQuarterToDate,
+
+    parseDateToQuarterYear : parseDateToQuarterYear,
 
 
     // Must bind React component's `this` to the following function.
