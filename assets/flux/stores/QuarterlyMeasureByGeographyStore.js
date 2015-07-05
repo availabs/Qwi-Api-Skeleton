@@ -70,7 +70,7 @@ var thisStore = assign({}, EventEmitter.prototype, {
         var stringifiedQuery = _stringifyQueryObject(query);
         
         //TODO: This should just do one thing.
-        //      Hand-off to handleQueryResult if cached.
+        //      Hand-off to handleServerQueryResponse if cached.
         if (_data[stringifiedQuery]) {
             return _data[stringifiedQuery];
         } else {
@@ -80,12 +80,17 @@ var thisStore = assign({}, EventEmitter.prototype, {
     },
 
 
-    'handleQueryResult': function (query) {
+    'handleServerQueryResponse': function (query) {
         var stringifiedQuery = _stringifyQueryObject(query);
 
         _data[stringifiedQuery] = query.data;
 
         this.emitQueryResponseReadyEvent(query);
+    },
+
+
+    'logMouseoverPoint' : function (point) {
+        console.log(point); 
     },
 });
 
@@ -96,7 +101,11 @@ thisStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(payload.type) {
 
     case ActionTypes.HANDLE_SERVER_QUERY_RESPONSE:
-        thisStore.handleQueryResult(payload.queryResult);
+        thisStore.handleServerQueryResponse(payload.queryResult);
+        break;
+
+    case ActionTypes.VORONOI_MQCG_MOUSEOVER:
+        thisStore.logMouseoverPoint(payload.point);
         break;
 
     default:

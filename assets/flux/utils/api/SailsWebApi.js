@@ -1,10 +1,28 @@
 'use strict';
 
-var ServerActionCreators = require('../../actions/ServerActionsCreator');
 
 
 var d3 = require('d3');
+
     
+
+var ActionCreators = require('../../actions/ActionsCreator');
+
+
+
+// TODO: Try this instead...
+// https://github.com/mbostock/d3/wiki/Requests#on
+
+function queryTheServer (query, url) {
+    d3.json(url, function(err,data) {
+
+        if (err) { throw err; }
+        
+        query.data = data;
+        ActionCreators.handleServerQueryResponse(query);
+    });
+}
+
 
 module.exports = {
 
@@ -15,15 +33,9 @@ module.exports = {
                   '/all_counties/state/'       +
                   query.geography;
 
-        d3.json(url, function(err,data) {
-
-            if (err) { throw err; }
-            
-            query.data = data;
-            ServerActionCreators.handleQueryResult(query);
-        });
-
+        queryTheServer(query, url);
     },
+
 
     'getMeasureByQuarterForGeography' : function (query) {
 
@@ -32,15 +44,9 @@ module.exports = {
                   '/geography/'    +
                   query.geography;
 
-        d3.json(url, function (error, data) {
-
-            if (error) { console.error(error); }
-            
-            query.data = data;
-            ServerActionCreators.handleQueryResult(query);
-        });
-
+        queryTheServer(query, url);
     },
+
 
     'getMeasureByQuarterByCategoryForGeography' : function (query) {
 
@@ -51,18 +57,6 @@ module.exports = {
                   '/geography/'     +
                   query.geography;
 
-        // TODO: Try this instead...
-        // https://github.com/mbostock/d3/wiki/Requests#on
-        d3.json(url, function (error, data) {
-
-            console.log('Server query result obtained.');
-
-            if (error) { console.error(error); }
-            
-            query.data = data;
-            ServerActionCreators.handleQueryResult(query);
-        });
-
+        queryTheServer(query, url);
     },
-
 };

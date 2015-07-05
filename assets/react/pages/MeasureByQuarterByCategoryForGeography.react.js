@@ -5,6 +5,8 @@
 
 var React                = require('react'),
 
+    ActionsCreator       = require('../../flux/actions/ActionsCreator'),
+
     SimpleSideBar        = require('../components/layout/SimpleSideBar.react'),
     SingleButtonDropdown = require('../components/ui/SingleButtonDropdown.react'),
     SavePNGButton        = require('../components/ui/SaveAsPNG_Button.react'),
@@ -277,6 +279,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
     },
 
 
+    '_fireVornoiMouseoverAction' : ActionsCreator.voronoiMeasureByQuarterByCategegoryForGeographyMouseover,
 
 
     'render' : function () {
@@ -369,23 +372,24 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
             
             linechart = (this.state.chartHeight > 100) ?
                         (   <LineChart
-                                height          = { this.state.chartHeight             }
-                                margin          = { chartMargins                       }
+                                height          = { state.chartHeight                                 }
+                                margin          = { chartMargins                                      }
 
-                                data            = { data                               }
+                                data            = { data                                              }
 
-                                geography       = { this.state.subgeographySelected ||
-                                                    this.state.stateSelected           }
-                                measure         = { this.state.measureSelected         }
-                                category        = { this.state.categorySelected        }
+                                geography       = { state.subgeographySelected || state.stateSelected }
+                                measure         = { state.measureSelected                             }
+                                category        = { state.categorySelected                            }
 
-                                chartID         = { chartID                            }
-                                chartTitle      = { chartTitle                         }
+                                chartID         = { chartID                                           }
+                                chartTitle      = { chartTitle                                        }
 
-                                measure_labels  = { measure_labels                                   }
-                                category_labels = { categoryLabelsTable[this.state.categorySelected] }
+                                keyParser       = { d3Utils.parseDateToQuarterYear                    }
 
-                                keyParser       = { d3Utils.parseDateToQuarterYear }
+                                mouseoverAction = { this._fireVornoiMouseoverAction                   }
+
+                                measure_labels  = { measure_labels                                    }
+                                category_labels = { categoryLabelsTable[this.state.categorySelected]  }
                             />
                         ) :
                         (<h5>{'Not enough screen space to render the line chart.'}</h5>);

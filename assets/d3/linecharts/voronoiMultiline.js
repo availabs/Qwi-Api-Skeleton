@@ -2,22 +2,9 @@
 /*globals $ */
 
 
-// TODO: This code is in the early phase of a major refactoring.
-//          Lots more needed.
-// TODO: Generalize this. Make it reusable.
-//          Get rid of the single use case assumptions.
-//
-
-// The parsing of data must be done before handing it to this module.
-// That would make it generally applicable.
-// No longer bind to the component. Give it its own `this`.
-
 var React                 = require('react'),
     d3                    = require('d3'),
-    lodash                = require('lodash'),
-    utils                 = require('./utils'),
-    geography_labels      = require('../../data/labels/geography'),
-    category_descriptions = require('../../data/labels/categories');
+    utils                 = require('./utils');
 
 
 
@@ -185,6 +172,12 @@ function newChart () {
                 textNodeYCoord = ((pointYCoord - textNodeHeight) > 0) ? 
                                     (pointYCoord - textNodeHeight)    : 
                                     pointYCoord;
+
+            if(props.mouseoverAction) {
+                props.mouseoverAction({ key   : d.circularRef.key, 
+                                        value : { key:d.key, 
+                                                  value:d.value, } });
+            }
 
             d3.select(d.circularRef.line)
               .classed("line--hover", true);

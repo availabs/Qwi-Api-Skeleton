@@ -6,6 +6,7 @@ module.exports = {
 
     ActionTypes: keyMirror({
         HANDLE_SERVER_QUERY_RESPONSE : null,
+        VORONOI_MQCG_MOUSEOVER       : null,
     }),
 
     EventTypes: keyMirror({
