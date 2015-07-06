@@ -190,7 +190,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
 
 
-    //FIXME: Possible Async Problem!!!
+    //FIXME: Possible Async Problem!!! Converting all to Actions should fix.
     '_queryDataStore' : function (query) {
         
         var data     = theStore.getMeasureByQuarterByCategoryForGeography(query),
@@ -206,7 +206,6 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
         this.setState(newState);
     },
 
-//FIXME: Lines only render the first time. After that error.
 
     '_parseTheData' : function (theData) {
     
@@ -241,7 +240,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
         return Object.keys(subcategoriesDataObj)
                      .reduce(function(accumulator, key) { 
                                  accumulator[accumulator.length] = { key   : key, 
-                                                                     values: subcategoriesDataObj[key] }; 
+                                                                     values: subcategoriesDataObj[key]}; 
                                  return accumulator; 
                      }, []);
     },
@@ -357,7 +356,6 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
             ),
             
 
-
             saveSvgAsPngButton = (
                 <SavePNGButton 
                     svgID           = { chartID                     }
@@ -370,7 +368,7 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
             ),
 
             
-            linechart = (this.state.chartHeight > 100) ?
+            linechart = (this.state.chartHeight > 0) ?
                         (   <LineChart
                                 height          = { state.chartHeight                                 }
                                 margin          = { chartMargins                                      }
@@ -387,6 +385,8 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
                                 keyParser       = { d3Utils.parseDateToQuarterYear                    }
 
                                 mouseoverAction = { this._fireVornoiMouseoverAction                   }
+
+                                yAxisLabel      = { measure_labels[state.measureSelected]             }
 
                                 measure_labels  = { measure_labels                                    }
                                 category_labels = { categoryLabelsTable[this.state.categorySelected]  }

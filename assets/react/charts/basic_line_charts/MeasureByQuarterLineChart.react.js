@@ -98,8 +98,7 @@ var MeasureByQuarterLineChart = React.createClass({
 
     'componentDidUpdate': function (prevProps, prevState) {
         if (this.props.height !== prevProps.height) {
-            linechartUtils.initByQuarterBasics.call(this);
-        }
+            linechartUtils.initByQuarterLineChartBasics.call(this); }
 
         this._update();
     },

@@ -26,29 +26,34 @@ var React                 = require('react'),
  *========================================================================*/
 var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
-    '_voronoiChart' : undefined, // Initialized in componentDidMount
+    '_voronoiChart' : voronoiMultilineChart.newChart(),
 
 
-    'componentDidMount': function () {
-        this._voronoiChart = voronoiMultilineChart.newChart.call(this);
-        this._voronoiChart.init();
+    '_createVoronoiConfig' : function () {
+        var theSVG = React.findDOMNode(this.refs.theSVG),
+            props  = this.props;
+
+        return {
+            parentNode      : theSVG,
+            data            : props.data,
+            height          : props.height,
+            width           : theSVG.offsetWidth,
+            margin          : props.margin,
+            keyParser       : props.keyParser,
+            mouseoverAction : props.mouseoverAction,
+            yAxisLabel      : props.yAxisLabel,
+        };
     },
 
 
     'shouldComponentUpdate': function (nextProps, nextState) {
-        // TODO: Figure out why width resizing is free.
         return  ( this.props.height !== nextProps.height ) ||
                 ( this.props.data   !== nextProps.data   )  ;
     },
 
 
-
     'componentDidUpdate': function (prevProps, prevState) {
-        if (this.props.height !== prevProps.height) {
-            this._voronoiChart.init();
-        }
-
-        this._voronoiChart.render();
+        this._voronoiChart.render(this._createVoronoiConfig());
     },
 
 
