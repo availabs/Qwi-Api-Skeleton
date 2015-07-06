@@ -220,7 +220,9 @@ var MeasureByQuarterByCategoryForGeography = React.createClass ({
 
         theData.forEach(function(d) {
 
-            if (d[measure] === null || d[measure] === undefined) { return; }
+            if (!d[category]        || 
+                d[measure] === null || 
+                d[measure] === undefined) { return; }
 
             if (d[category].trim() === aggregationDefaults[category]) { return; }
 
