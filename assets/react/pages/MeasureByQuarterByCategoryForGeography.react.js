@@ -39,6 +39,8 @@ var categoryLabelsTable  = {
 };
 
 
+// The voronoi hides the labels by setting opacity to 0.
+// This code sets opacity to 1 in the svg's clone.
 function preprocessChartSVGForExport (theClone) {
     $(theClone).find('.line_label')
                .each(function() { 

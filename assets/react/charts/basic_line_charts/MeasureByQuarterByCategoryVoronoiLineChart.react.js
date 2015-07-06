@@ -34,7 +34,6 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
             props  = this.props;
 
         return {
-            parentNode      : theSVG,
             data            : props.data,
             height          : props.height,
             width           : theSVG.offsetWidth,
@@ -53,7 +52,14 @@ var MeasureByQuarterByGeographyVoronoiLineChart = React.createClass({
 
 
     'componentDidUpdate': function (prevProps, prevState) {
-        this._voronoiChart.render(this._createVoronoiConfig());
+        var theSVG   = React.findDOMNode(this.refs.theSVG),
+            theChart = this._voronoiChart.render(this._createVoronoiConfig());
+
+        while (theSVG.firstChild) {
+            theSVG.removeChild(theSVG.firstChild);
+        }
+
+        theSVG.appendChild(theChart.node());
     },
 
 

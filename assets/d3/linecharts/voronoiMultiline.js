@@ -22,19 +22,29 @@ function newChart () {
 
     theChart.render = function (config) {
 
-        var theSVG = d3.select(config.parentNode),
-            theG,
-            categoriesG,
+        //var theSVG = d3.select(config.parentNode),
+        var categoriesG,
             i, ii,
 
-            margin = lodash.defaults(config.margin, MARGIN_DEFAULTS),
-            width  = config.width,
-            height = config.height,
+            margin     = lodash.defaults(config.margin, MARGIN_DEFAULTS),
+            width      = config.width,
+            height     = config.height,
 
             mustReinit = (theChart.width  !== width)  ||
                          (theChart.height !== height) ||
-                         !lodash.isEqual(theChart.margin, margin);
+                         !lodash.isEqual(theChart.margin, margin),
+
         
+            chartSVG   = d3.select(document.createElementNS("http://www.w3.org/2000/svg", "svg"))
+                           .style('width'   , width)
+                           .style('height'  , height),
+
+            theG       = chartSVG.append('g')
+                                 .style('width'   , width)
+                                 .style('height'  , height - margin.top - margin.bottom)
+                                 .attr('transform', 'translate('+margin.left + ',' + margin.top +')');
+                           
+
         theChart.width  = width;
         theChart.height = height;
         theChart.margin = margin;
@@ -42,12 +52,10 @@ function newChart () {
         if (mustReinit) { utils.initByQuarterLineChartBasics(theChart); }
 
 
+        console.log(config);
 
 
-        // TODO: Try to just remove the axes, then use `exit` on the chart.
-        theSVG.selectAll('*').remove();
-
-        if (!(config.data && config.data.length)) { return; }
+        if (!(config.data && config.data.length)) { return chartSVG; }
 
         color.domain(config.data.map(function(d) { return d.key; }));
 
@@ -58,6 +66,7 @@ function newChart () {
                                                     return d[fieldName]; }); }) 
                                     .reduce(function(agg, cur) { return agg.concat(cur); }, []));
         } 
+
 
         theChart._x.domain(getNestedExtents('key'));
         theChart._y.domain(getNestedExtents('value'));
@@ -76,12 +85,6 @@ function newChart () {
         });
 
 
-        theG = theSVG.append('g')
-                     .style('width'   , width)
-                     .style('height'  , height - margin.top - margin.bottom)
-                     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-
         categoriesG = theG.selectAll('.category')
                           .data(config.data)
                         .enter().append('g')
@@ -97,13 +100,17 @@ function newChart () {
 
         // Add the labels to the lines. 
         // The labels are stacked so that they do not obscure each other.
-        //
+        // They are also transparent and outside of the chartSVG.
+        // They are made visible and the chartSVG widened during export to PNG.
         (function() {
+            var FONT_SIZE = 10;
+
             var maxY_translation = Number.POSITIVE_INFINITY,
                 xTranslation     = d3.max(config.data, function(d) { 
                                         return theChart._x(d.values[d.values.length -1].key); 
                                    }),
-                lineLabelHeight;
+
+                lineLabelHeight = FONT_SIZE + 2;
 
             categoriesG.append('text')
                        .datum(function (d) { return { key   : d.key,
@@ -111,17 +118,13 @@ function newChart () {
                        .attr('x', 3)
                        .attr('dy', '0.35em')
                        .text(function (d) { return d.key; })
-                       .style('font-size', '10px')
+                       .style('font-size', FONT_SIZE + 'px')
                        .style('fill', function(d) { return color(d.key); })
                        .style('opacity', 0) // Hide the label. Reveal in PNG export.
                        .attr('class', 'exportable line_label')
                        .attr('transform', function(d, i) { 
                            var yTranslation;
 
-                           if (!lineLabelHeight) { 
-                               lineLabelHeight = this.getBoundingClientRect().height; 
-                           }
-                           
                            yTranslation = Math.min(theChart._y(d.value) + lineLabelHeight, 
                                                    maxY_translation);
 
@@ -173,6 +176,7 @@ function newChart () {
                 pointYCoord    = theChart._y(d.value),
 
                 // Make sure the text node is within the chart.
+                // FIXME: Address right, bottom, and left sides.
                 textNodeYCoord = ((pointYCoord - textNodeHeight) > 0) ? 
                                     (pointYCoord - textNodeHeight)    : 
                                     pointYCoord;
@@ -243,9 +247,11 @@ function newChart () {
             .style('font-size', '10px')
             .text(config.yAxisLabel);
 
-        d3.selectAll('g.tick')
+        theG.selectAll('g.tick')
             .select('line') 
             .attr('class', 'grid-line');
+
+        return chartSVG;
     };
 
 
