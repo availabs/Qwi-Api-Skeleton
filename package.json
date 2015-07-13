@@ -5,12 +5,10 @@
   "description": "a Sails application",
   "keywords": [],
   "dependencies": {
-    "browserify": "^10.2.1",
     "d3": "^3.5.5",
     "ejs": "~0.8.4",
     "flux": "^2.0.3",
     "grunt": "0.4.2",
-    "grunt-browserify": "^3.8.0",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-coffee": "~0.10.1",
     "grunt-contrib-concat": "~0.3.0",
@@ -20,10 +18,12 @@
     "grunt-contrib-less": "0.11.1",
     "grunt-contrib-uglify": "~0.4.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-react": "^0.12.2",
+    "grunt-exec": "^0.4.6",
     "grunt-sails-linker": "~0.9.5",
     "grunt-sync": "~0.0.4",
+    "grunt-webpack": "^1.0.11",
     "include-all": "~0.1.3",
+    "jsx-loader": "^0.13.2",
     "keymirror": "^0.1.1",
     "lodash": "^3.9.3",
     "object-assign": "^2.0.0",
@@ -35,7 +35,8 @@
     "sails-disk": "~0.10.0",
     "sails-postgresql": "^0.10.14",
     "save-svg-as-png": "^1.0.0",
-    "waterline": "^0.10.22"
+    "waterline": "^0.10.22",
+    "webpack": "^1.10.1"
   },
   "scripts": {
     "start": "node app.js",
@@ -47,5 +48,11 @@
     "url": "git://github.com/paul/Qwi-Api-Skeleton.git"
   },
   "author": "paul",
-  "license": ""
+  "license": "",
+  "devDependencies": {
+    "grunt-exec": "^0.4.6",
+    "node-libs-browser": "^0.5.2",
+    "react-hot-loader": "^1.2.8",
+    "webpack-dev-server": "^1.10.1"
+  }
 }
