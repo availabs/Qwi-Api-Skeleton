@@ -140,7 +140,8 @@ function newChart () {
                     .attr("class", "focus");
 
         focus.append("circle")
-            .attr("r", 3.5);
+            .attr("r", 3.5)
+            .style('fill', 'white');
 
         focus.append("text")
              .attr("y", -10);
@@ -171,29 +172,33 @@ function newChart () {
 
 
         function mouseover(d) {
-            var textNode       = focus.select('text'),
-                textNodeHeight = textNode.node().getBBox().height,
-                pointYCoord    = theChart._y(d.value),
+            var textNode    = focus.select('text'),
+                pointXCoord = theChart._x(d.key),
+                pointYCoord = theChart._y(d.value),
 
-                // Make sure the text node is within the chart.
-                // FIXME: Address right, bottom, and left sides.
-                textNodeYCoord = ((pointYCoord - textNodeHeight) > 0) ? 
-                                    (pointYCoord - textNodeHeight)    : 
-                                    pointYCoord;
+                realWidth   = width  - margin.left - margin.right,
+                realHeight  = height - margin.top  - margin.bottom,
+
+                textNodeBBox,
+                halfTextNodeWidth,
+                halfTextNodeHeight,
+
+                textNode_X_Translate = 0,
+                textNode_Y_Translate = 0,
+
+                tmp;
+
 
             if(config.mouseoverAction) {
                 config.mouseoverAction({ key   : d.circularRef.key, 
-                                        value : { key:d.key, 
-                                                  value:d.value, } });
+                                         value : { key:d.key, 
+                                                   value:d.value, } });
             }
 
             d3.select(d.circularRef.line)
               .classed("line--hover", true);
 
             d.circularRef.line.parentNode.appendChild(d.circularRef.line);
-
-            focus.attr("transform", "translate(" + 
-                                     theChart._x(d.key) + "," + textNodeYCoord + ")");
 
             textNode.selectAll('*').remove();
 
@@ -219,6 +224,30 @@ function newChart () {
                 .attr('x', 0)
                 .attr('dy', '1.2em')
                 .text(d.value);
+
+            focus.attr("transform", "translate(" + pointXCoord + "," + pointYCoord + ")");
+
+
+
+            // Keep the textBoxes on the chart.
+            textNodeBBox = textNode.node().getBBox();
+
+            halfTextNodeWidth  = textNodeBBox.width / 2.0;
+            halfTextNodeHeight = textNodeBBox.height / 2.0;
+
+            if ((tmp = (pointXCoord - halfTextNodeWidth)) < 0) {
+                textNode_X_Translate = -tmp;
+            } else if ((tmp = (pointXCoord + halfTextNodeWidth)) > realWidth) {
+                textNode_X_Translate = realWidth - tmp; 
+            } 
+
+            if ((tmp = (pointYCoord + halfTextNodeHeight)) > realHeight) {
+                textNode_Y_Translate = realHeight - tmp; 
+            } 
+
+            textNode.attr("transform", "translate(" + 
+                            textNode_X_Translate + "," + 
+                            textNode_Y_Translate + ")");
         }
 
         function mouseout(d) {
