@@ -1,48 +1,63 @@
-var path    = require('path'),
-    webpack = require('webpack');
+var path = require('path');
+var webpack = require('webpack');
 
-var inDevelopment = (process.env.NODE_ENV === 'development');
+var webpackConfig;
 
-var entry = inDevelopment ?
-    [ 'webpack-dev-server/client?http://0.0.0.0:9999',
-      'webpack/hot/only-dev-server',
-      './assets/react/indexView.jsx', ] :
+if (process.env.NODE_ENV === 'development') {
 
-    './assets/react/indexView.jsx';
+    webpackConfig = {
+        devtool: 'eval',
+        entry: [
+          'webpack-dev-server/client?http://localhost:11235',
+          'webpack/hot/dev-server',
+          './assets/react/indexView.jsx',
+        ],
+        output: {
+          path: path.join(__dirname, '.tmp/public'),
+          filename: 'bundle.js',
+          //crossOriginLoading: "use-credentials",
+          publicPath: 'http://localhost:11235/',
+        },
+        plugins: [
+          new webpack.NoErrorsPlugin(),
+          new webpack.HotModuleReplacementPlugin(),
+          new webpack.optimize.OccurenceOrderPlugin(),
+        ],
+        resolve: {
+          extensions: ['', '.js', '.jsx']
+        },
+        watch:true,
+        module: {
+          loaders: [{
+            test: /\.jsx?$|react\.js/,
+            loaders: ['react-hot', 'jsx'],
+            include: path.join(__dirname, 'assets')
+          }]
+        }
+    };
+
+} else {
+
+    webpackConfig = {
+
+        entry: './assets/react/indexView.jsx',
+        
+        output: {
+          path: path.join(__dirname, '.tmp/public'),
+          filename: 'bundle.js',
+        },
+        resolve: {
+          extensions: ['', '.js', '.jsx']
+        },
+        module: {
+          loaders: [{
+            test: /\.jsx?$|react\.js/,
+            loaders: ['react-hot', 'jsx'],
+            include: path.join(__dirname, 'assets')
+          }]
+        }
+    };
+}
 
 
-module.exports = {
-    
-    entry : entry,
-
-    output: {
-        path: '.tmp/public/',
-        filename: 'bundle.js',
-        publicPath: inDevelopment ? 'http://localhost:9999/' : '',
-    },
-
-    module: {
-        loaders: inDevelopment ? 
-                    [ { test: /\.jsx$|react\.js/, loaders: ['react-hot', 'jsx-loader?harmony'], }, ] :
-                    [ { test: /\.jsx$|react\.js/, loaders: ['jsx-loader?harmony'], }, ],
-
-
-        include: /assets/,
-    },
-
-    resolve: {
-        extensions: ['', '.js', '.jsx']
-    },
-
-    watch: inDevelopment,
-
-    inline: inDevelopment,
-
-    plugins: inDevelopment ? 
-                [ new webpack.HotModuleReplacementPlugin(),
-                  new webpack.NoErrorsPlugin() ] :
-                [],
-
-    proxy: inDevelopment ? { "*": "http://localhost:1337" } : undefined,
-
-};
+module.exports = webpackConfig;

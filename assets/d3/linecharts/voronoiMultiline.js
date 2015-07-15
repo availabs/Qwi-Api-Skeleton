@@ -52,9 +52,6 @@ function newChart () {
         if (mustReinit) { utils.initByQuarterLineChartBasics(theChart); }
 
 
-        console.log(config);
-
-
         if (!(config.data && config.data.length)) { return chartSVG; }
 
         color.domain(config.data.map(function(d) { return d.key; }));
@@ -141,11 +138,29 @@ function newChart () {
 
         focus.append("circle")
             .attr("r", 3.5)
-            .style('fill', 'white');
+            .each(pulse);
 
         focus.append("text")
              .attr("y", -10);
 
+		function pulse() {
+			var circle = focus.select("circle");
+			(function repeat() {
+				circle = circle.transition()
+					.duration(500)
+					.attr("stroke-width", 0.2)
+                    .attr('fill', 'white')
+                    .attr('fill-opacity', 0.9)
+					.attr("r", 2)
+					.transition()
+					.duration(500)
+					.attr('stroke-width', 1)
+                    .attr('fill-opacity', 0.75)
+					.attr("r", 3)
+					.ease('elastic')
+					.each("end", repeat);
+			})();
+        }
 
 
         var voronoi = d3.geom.voronoi()
@@ -279,6 +294,7 @@ function newChart () {
         theG.selectAll('g.tick')
             .select('line') 
             .attr('class', 'grid-line');
+
 
         return chartSVG;
     };

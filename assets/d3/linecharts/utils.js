@@ -4,7 +4,6 @@ var d3     = require('d3'),
     lodash = require('lodash');
 
 
-
 var parseDate      = d3.time.format("%m-%Y").parse,
     quarterToMonth = { '1': '02', '2': '05', '3': '08', '4': '11' },
     monthToQuarter = lodash.invert(quarterToMonth);

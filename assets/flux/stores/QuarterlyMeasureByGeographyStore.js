@@ -90,7 +90,7 @@ var thisStore = assign({}, EventEmitter.prototype, {
 
 
     'logMouseoverPoint' : function (point) {
-        console.log(point); 
+        //console.log(point); 
     },
 });
 
