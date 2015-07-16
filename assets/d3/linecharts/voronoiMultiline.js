@@ -12,84 +12,52 @@ var React  = require('react'),
     utils  = require('./utils');
 
 
-var MARGIN_DEFAULTS = { top:0, right:0, bottom:0, left:0 };
+const MARGIN_DEFAULTS = { top:0, right:0, bottom:0, left:0 };
 
+function prepareData (leChart) {
+    addCircularRefToDataValues(leChart);
+    sortDataForLabelStacking(leChart);
+}
+
+function noData (leChart) {
+    return !(leChart.data && leChart.data.length);
+}
 
 function newChart () {
 
     var theChart  = {},
-        leChart   = {},  //Internal to newChart
-        parseDate = utils.parseDate,
-        color     = d3.scale.category20(); 
-
+        leChart   = {};  //Internal to newChart
 
     theChart.render = function (config) {
 
-        var categoriesG,
+        updateLeChart(leChart, config);
 
-            newLayout  = {
-                margin : lodash.defaults(config.margin, MARGIN_DEFAULTS),
-                width  : config.width,
-                height : config.height,
-            },
-
-            mustReinit = didLayoutChange(leChart, newLayout);
+        if (noData(leChart)) { return leChart.chartSVG; }
 
 
-        lodash.assign(leChart, newLayout);
+        updateDomains(leChart);
 
-        leChart.data  = config.data;
-        leChart.color = color;
+        prepareData(leChart);
 
-        leChart.chartSVG = newChartSVG(leChart);
-        leChart.theVizG  = newVizG(leChart);
+        leChart.categoriesG = newCategoriesG(leChart);
 
-
-        if (mustReinit) { utils.initByQuarterLineChartBasics(leChart); }
-
-        if (!(config.data && config.data.length)) { return leChart.chartSVG; }
+        appendLinesToCategoriesG(leChart);
+        appendTransparentLabelsToLines(leChart);
 
 
-        leChart.color.domain(leChart.data.map(function(d) { return d.key; }));
-
-        leChart._x.domain(getNestedExtents(leChart, 'key'));
-        leChart._y.domain(getNestedExtents(leChart, 'value'));
-
-
-        addCircularRefToDataValues(leChart);
-
-        sortDataForLabelStacking(leChart);
-
-
-        categoriesG = leChart.theVizG.selectAll('.category')
-                          .data(config.data)
-                        .enter().append('g')
-                          .attr('class', 'category');
-
-        categoriesG.append('path')
-            .attr('class', 'line')
-            .attr('d', function (d) {
-                           d.line = this;
-                           return leChart._line(d.values); })
-            .style('stroke', function(d) { return leChart.color(d.key); });
-
-        appendTransparentLabelsToLines(leChart, categoriesG);
-
-
-
-        var focus = leChart.theVizG.append("g")
+        leChart.focus = leChart.theVizG.append("g")
                     .attr("transform", "translate(-100,-100)")
                     .attr("class", "focus");
 
-        focus.append("circle")
+        leChart.focus.append("circle")
             .attr("r", 3.5)
             .each(pulse);
 
-        focus.append("text")
+        leChart.focus.append("text")
              .attr("y", -10);
 
 		function pulse() {
-			var circle = focus.select("circle");
+			var circle = leChart.focus.select("circle");
 			(function repeat() {
 				circle = circle.transition()
 					.duration(500)
@@ -132,7 +100,7 @@ function newChart () {
 
 
         function mouseover(d) {
-            var textNode    = focus.select('text'),
+            var textNode    = leChart.focus.select('text'),
                 pointXCoord = leChart._x(d.key),
                 pointYCoord = leChart._y(d.value),
 
@@ -185,7 +153,7 @@ function newChart () {
                 .attr('dy', '1.2em')
                 .text(d.value);
 
-            focus.attr("transform", "translate(" + pointXCoord + "," + pointYCoord + ")");
+            leChart.focus.attr("transform", "translate(" + pointXCoord + "," + pointYCoord + ")");
 
 
             // Keep the textBoxes on the chart.
@@ -213,7 +181,7 @@ function newChart () {
             d3.select(d.circularRef.line)
               .classed("line--hover", false);
 
-            focus.attr("transform", "translate(-100,-100)");
+            leChart.focus.attr("transform", "translate(-100,-100)");
         }
 
         leChart.theVizG.append('g')
@@ -277,7 +245,7 @@ function sortDataForLabelStacking (leChart) {
 // The labels are stacked so that they do not obscure each other.
 // They are also transparent and outside of leChart.chartSVG.
 // They are made visible and leChart.chartSVG widened during export to PNG.
-function appendTransparentLabelsToLines (leChart, categoriesG) {
+function appendTransparentLabelsToLines (leChart) {
     var FONT_SIZE = 10;
 
     var maxY_translation = Number.POSITIVE_INFINITY,
@@ -287,7 +255,7 @@ function appendTransparentLabelsToLines (leChart, categoriesG) {
 
         lineLabelHeight = FONT_SIZE + 2;
 
-    categoriesG.append('text')
+    leChart.categoriesG.append('text')
                .datum(function (d) { return { key   : d.key,
                                               value : d.values[d.values.length -1].value }; })
                .attr('x', 3)
@@ -333,5 +301,52 @@ function newVizG (leChart) {
                                 );
 }
 
+function newCategoriesG (leChart) {
+    return leChart.theVizG.selectAll('.category')
+                     .data(leChart.data)
+                  .enter().append('g')
+                     .attr('class', 'category');
+}
+
+function appendLinesToCategoriesG (leChart) {
+    leChart.categoriesG.append('path')
+        .attr('class', 'line')
+        .attr('d', function (d) {
+                       d.line = this;
+                       return leChart._line(d.values); })
+        .style('stroke', function(d) { return leChart.color(d.key); });
+}
+
+function updateDomains (leChart) {
+    leChart.color.domain(leChart.data.map(function(d) { return d.key; }));
+    leChart._x.domain(getNestedExtents(leChart, 'key'));
+    leChart._y.domain(getNestedExtents(leChart, 'value'));
+}
+
+function updateLeChart (leChart, config) {
+
+    var newLayout  = {
+            margin : lodash.defaults(config.margin, MARGIN_DEFAULTS),
+            width  : config.width,
+            height : config.height,
+        },
+
+        mustReinit = didLayoutChange(leChart, newLayout);
+
+    lodash.assign(leChart, newLayout);
+
+    leChart.data  = config.data;
+    leChart.color = d3.scale.category20();
+
+    leChart.chartSVG = newChartSVG(leChart);
+    leChart.theVizG  = newVizG(leChart);
+
+    if (mustReinit) { utils.initByQuarterLineChartBasics(leChart); }
+}
+
+
 
 module.exports = { newChart : newChart };
+
+
+
