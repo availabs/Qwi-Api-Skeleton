@@ -46,6 +46,14 @@ if (process.env.NODE_ENV === 'development') {
           path: path.join(__dirname, '.tmp/public'),
           filename: 'bundle.js',
         },
+        plugins: [
+            new webpack.optimize.UglifyJsPlugin({
+                compressor: {
+                    screw_ie8: true,
+                    warnings: false
+                }
+            }),
+        ],
         resolve: {
           extensions: ['', '.js', '.jsx']
         },
