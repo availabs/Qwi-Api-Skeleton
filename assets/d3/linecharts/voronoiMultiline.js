@@ -2,137 +2,82 @@
 /*globals $ */
 
 
-//FIXME: Move init inside render.
-//       Output SVG rather than append to one passed in via config.
+// FIXME: STATEFUL!!!
+//          Only place where state matters is remembering layout to determine whether to reinit axes. 
+//          Unnecessary, minor optimization.
 
 var React  = require('react'),
     d3     = require('d3'),
     lodash = require('lodash'),
     utils  = require('./utils');
 
+
 var MARGIN_DEFAULTS = { top:0, right:0, bottom:0, left:0 };
+
 
 function newChart () {
 
     var theChart  = {},
-        color     = d3.scale.category20(),
-        parseDate = utils.parseDate;
-
+        leChart   = {},  //Internal to newChart
+        parseDate = utils.parseDate,
+        color     = d3.scale.category20(); 
 
 
     theChart.render = function (config) {
 
-        //var theSVG = d3.select(config.parentNode),
         var categoriesG,
-            i, ii,
 
-            margin     = lodash.defaults(config.margin, MARGIN_DEFAULTS),
-            width      = config.width,
-            height     = config.height,
+            newLayout  = {
+                margin : lodash.defaults(config.margin, MARGIN_DEFAULTS),
+                width  : config.width,
+                height : config.height,
+            },
 
-            mustReinit = (theChart.width  !== width)  ||
-                         (theChart.height !== height) ||
-                         !lodash.isEqual(theChart.margin, margin),
-
-        
-            chartSVG   = d3.select(document.createElementNS("http://www.w3.org/2000/svg", "svg"))
-                           .style('width'   , width)
-                           .style('height'  , height),
-
-            theG       = chartSVG.append('g')
-                                 .style('width'   , width)
-                                 .style('height'  , height - margin.top - margin.bottom)
-                                 .attr('transform', 'translate('+margin.left + ',' + margin.top +')');
-                           
-
-        theChart.width  = width;
-        theChart.height = height;
-        theChart.margin = margin;
-
-        if (mustReinit) { utils.initByQuarterLineChartBasics(theChart); }
+            mustReinit = didLayoutChange(leChart, newLayout);
 
 
-        if (!(config.data && config.data.length)) { return chartSVG; }
+        lodash.assign(leChart, newLayout);
 
-        color.domain(config.data.map(function(d) { return d.key; }));
+        leChart.data  = config.data;
+        leChart.color = color;
 
-
-        function getNestedExtents (fieldName) {
-            return d3.extent(config.data.map(function(d) { 
-                                                return d3.extent(d.values, function(d) { 
-                                                    return d[fieldName]; }); }) 
-                                    .reduce(function(agg, cur) { return agg.concat(cur); }, []));
-        } 
+        leChart.chartSVG = newChartSVG(leChart);
+        leChart.theVizG  = newVizG(leChart);
 
 
-        theChart._x.domain(getNestedExtents('key'));
-        theChart._y.domain(getNestedExtents('value'));
+        if (mustReinit) { utils.initByQuarterLineChartBasics(leChart); }
+
+        if (!(config.data && config.data.length)) { return leChart.chartSVG; }
 
 
-        for (i = 0; i < config.data.length; ++i) {
-            for (ii = 0; ii < config.data[i].values.length; ++ii) {
-                config.data[i].values[ii].circularRef = config.data[i]; 
-            } 
-        }
+        leChart.color.domain(leChart.data.map(function(d) { return d.key; }));
 
-        
-        // For stacking the labels.
-        config.data.sort(function(a,b) { 
-            return a.values[a.values.length -1].value - b.values[b.values.length -1].value;
-        });
+        leChart._x.domain(getNestedExtents(leChart, 'key'));
+        leChart._y.domain(getNestedExtents(leChart, 'value'));
 
 
-        categoriesG = theG.selectAll('.category')
+        addCircularRefToDataValues(leChart);
+
+        sortDataForLabelStacking(leChart);
+
+
+        categoriesG = leChart.theVizG.selectAll('.category')
                           .data(config.data)
                         .enter().append('g')
-                          .attr('class', 'category exportable');
+                          .attr('class', 'category');
 
         categoriesG.append('path')
-            .attr('class', 'line exportable')
+            .attr('class', 'line')
             .attr('d', function (d) {
                            d.line = this;
-                           return theChart._line(d.values); })
-            .style('stroke', function(d) { return color(d.key); });
+                           return leChart._line(d.values); })
+            .style('stroke', function(d) { return leChart.color(d.key); });
+
+        appendTransparentLabelsToLines(leChart, categoriesG);
 
 
-        // Add the labels to the lines. 
-        // The labels are stacked so that they do not obscure each other.
-        // They are also transparent and outside of the chartSVG.
-        // They are made visible and the chartSVG widened during export to PNG.
-        (function() {
-            var FONT_SIZE = 10;
 
-            var maxY_translation = Number.POSITIVE_INFINITY,
-                xTranslation     = d3.max(config.data, function(d) { 
-                                        return theChart._x(d.values[d.values.length -1].key); 
-                                   }),
-
-                lineLabelHeight = FONT_SIZE + 2;
-
-            categoriesG.append('text')
-                       .datum(function (d) { return { key   : d.key,
-                                                      value : d.values[d.values.length -1].value }; })
-                       .attr('x', 3)
-                       .attr('dy', '0.35em')
-                       .text(function (d) { return d.key; })
-                       .style('font-size', FONT_SIZE + 'px')
-                       .style('fill', function(d) { return color(d.key); })
-                       .style('opacity', 0) // Hide the label. Reveal in PNG export.
-                       .attr('class', 'exportable line_label')
-                       .attr('transform', function(d, i) { 
-                           var yTranslation;
-
-                           yTranslation = Math.min(theChart._y(d.value) + lineLabelHeight, 
-                                                   maxY_translation);
-
-                           maxY_translation = yTranslation - Math.ceil(lineLabelHeight/2.0) - 2;
-
-                           return 'translate(' + xTranslation + ',' + maxY_translation + ')'; 
-                        });
-        }());
-
-
-        var focus = theG.append("g")
+        var focus = leChart.theVizG.append("g")
                     .attr("transform", "translate(-100,-100)")
                     .attr("class", "focus");
 
@@ -164,20 +109,20 @@ function newChart () {
 
 
         var voronoi = d3.geom.voronoi()
-                             .x(function(d) { return theChart._x(d.key); })
-                             .y(function(d) { return theChart._y(d.value); })
-                             .clipExtent([[ -margin.left, -margin.top], 
-                                          [ width + margin.right, height + margin.bottom]]);
+                             .x(function(d) { return leChart._x(d.key); })
+                             .y(function(d) { return leChart._y(d.value); })
+                             .clipExtent([[ -leChart.margin.left, -leChart.margin.top], 
+                                          [ leChart.width + leChart.margin.right, leChart.height + leChart.margin.bottom]]);
 
-        var voronoiGroup = theG.append("g")
+        var voronoiGroup = leChart.theVizG.append("g")
                                .attr("class", "voronoi");
 
         voronoiGroup.selectAll("path")
                     .data(voronoi(d3.nest()
                                     .key(function (d) { 
-                                        return theChart._x(d.key) + "," + theChart._y(d.value); })
+                                        return leChart._x(d.key) + "," + leChart._y(d.value); })
                                     .rollup(function (v) { return v[0]; })
-                                    .entries(d3.merge(config.data.map(function (d) {return d.values;})))
+                                    .entries(d3.merge(leChart.data.map(function (d) {return d.values;})))
                                     .map(function(d) { return d.values; })))
                     .enter().append("path")
                             .attr("d", function(d) { return "M" + d.join("L") + "Z"; })
@@ -188,11 +133,11 @@ function newChart () {
 
         function mouseover(d) {
             var textNode    = focus.select('text'),
-                pointXCoord = theChart._x(d.key),
-                pointYCoord = theChart._y(d.value),
+                pointXCoord = leChart._x(d.key),
+                pointYCoord = leChart._y(d.value),
 
-                realWidth   = width  - margin.left - margin.right,
-                realHeight  = height - margin.top  - margin.bottom,
+                realWidth   = leChart.width  - leChart.margin.left - leChart.margin.right,
+                realHeight  = leChart.height - leChart.margin.top  - leChart.margin.bottom,
 
                 textNodeBBox,
                 halfTextNodeWidth,
@@ -211,7 +156,7 @@ function newChart () {
             }
 
             d3.select(d.circularRef.line)
-              .classed("line--hover", true);
+              .classed("line-hover", true);
 
             d.circularRef.line.parentNode.appendChild(d.circularRef.line);
 
@@ -222,7 +167,7 @@ function newChart () {
                                           '5px 5px 5px black,' +
                                           '5px 5px 5px black'  )
                     .style('font-size', '20px')
-                    .style('stroke', color(d.circularRef.key) )
+                    .style('stroke', leChart.color(d.circularRef.key) )
                     .style('fill', 'white');
 
             textNode.append('tspan')
@@ -241,7 +186,6 @@ function newChart () {
                 .text(d.value);
 
             focus.attr("transform", "translate(" + pointXCoord + "," + pointYCoord + ")");
-
 
 
             // Keep the textBoxes on the chart.
@@ -272,35 +216,122 @@ function newChart () {
             focus.attr("transform", "translate(-100,-100)");
         }
 
-        theG.append('g')
+        leChart.theVizG.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + 
-                                (height - margin.bottom - margin.top) + ')')
+                                (leChart.height - leChart.margin.bottom - leChart.margin.top) + ')')
             .style('font-size', '10px')
-            .call(theChart._xAxis);
+            .call(leChart._xAxis);
 
-        theG.append('g')
+        leChart.theVizG.append('g')
             .attr('class', 'y axis')
             .style('font-size', '10px')
-            .call(theChart._yAxis)
+            .call(leChart._yAxis)
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', 6)
             .attr('dy', '.71em')
             .style('text-anchor', 'end')
             .style('font-size', '10px')
-            .text(config.yAxisLabel);
+            .text(leChart.yAxisLabel);
 
-        theG.selectAll('g.tick')
+        leChart.theVizG.selectAll('g.tick')
             .select('line') 
             .attr('class', 'grid-line');
 
 
-        return chartSVG;
+        return leChart.chartSVG;
     };
 
 
     return theChart;
 }
+
+
+function getNestedExtents (leChart, fieldName) {
+    return d3.extent(leChart.data.map(function(d) { 
+                                        return d3.extent(d.values, function(d) { 
+                                            return d[fieldName]; }); }) 
+                            .reduce(function(agg, cur) { return agg.concat(cur); }, []));
+} 
+
+// FIXME: Side-effects.
+function addCircularRefToDataValues (leChart) {
+    var i, ii;
+
+    for (i = 0; i < leChart.data.length; ++i) {
+        for (ii = 0; ii < leChart.data[i].values.length; ++ii) {
+            leChart.data[i].values[ii].circularRef = leChart.data[i]; 
+        } 
+    }
+}
+
+// FIXME: Side-effects.
+function sortDataForLabelStacking (leChart) {
+    leChart.data.sort(function(a,b) { 
+        return a.values[a.values.length -1].value - b.values[b.values.length -1].value;
+    });
+}
+
+// Add the labels to the lines. 
+// The labels are stacked so that they do not obscure each other.
+// They are also transparent and outside of leChart.chartSVG.
+// They are made visible and leChart.chartSVG widened during export to PNG.
+function appendTransparentLabelsToLines (leChart, categoriesG) {
+    var FONT_SIZE = 10;
+
+    var maxY_translation = Number.POSITIVE_INFINITY,
+        xTranslation     = d3.max(leChart.data, function(d) { 
+                                return leChart._x(d.values[d.values.length -1].key); 
+                           }),
+
+        lineLabelHeight = FONT_SIZE + 2;
+
+    categoriesG.append('text')
+               .datum(function (d) { return { key   : d.key,
+                                              value : d.values[d.values.length -1].value }; })
+               .attr('x', 3)
+               .attr('dy', '0.35em')
+               .text(function (d) { return d.key; })
+               .style('font-size', FONT_SIZE + 'px')
+               .style('fill', function(d) { return leChart.color(d.key); })
+               .style('opacity', 0) // Hide the label. Reveal in PNG export.
+               .attr('class', 'line_label')
+               .attr('transform', function(d, i) { 
+                   var yTranslation;
+
+                   yTranslation = Math.min(leChart._y(d.value) + lineLabelHeight, 
+                                           maxY_translation);
+
+                   maxY_translation = yTranslation - Math.ceil(lineLabelHeight/2.0) - 2;
+
+                   return 'translate(' + xTranslation + ',' + maxY_translation + ')'; 
+                });
+}
+
+function didLayoutChange (leChart, newLayout) {
+    return (leChart.width  !== newLayout.width)  ||
+           (leChart.height !== newLayout.height) ||
+           !lodash.isEqual(leChart.margin, newLayout.margin);
+}
+
+function newChartSVG (leChart) { 
+    return d3.select(document.createElementNS("http://www.w3.org/2000/svg", "svg"))
+                   .style('width' , leChart.width)
+                   .style('height', leChart.height);
+}
+
+function newVizG (leChart) {
+    return leChart.chartSVG.append('g')
+                           .style('width' , leChart.width)
+                           .style('height', leChart.height - leChart.margin.top - leChart.margin.bottom)
+                           .attr('transform', 'translate('          +
+                                                leChart.margin.left +
+                                                ','                 +
+                                                leChart.margin.top  +
+                                                ')'
+                                );
+}
+
 
 module.exports = { newChart : newChart };
