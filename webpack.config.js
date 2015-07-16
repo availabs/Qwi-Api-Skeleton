@@ -53,6 +53,7 @@ if (process.env.NODE_ENV === 'development') {
                     warnings: false
                 }
             }),
+            new webpack.optimize.DedupePlugin(),
         ],
         resolve: {
           extensions: ['', '.js', '.jsx']
@@ -60,7 +61,7 @@ if (process.env.NODE_ENV === 'development') {
         module: {
           loaders: [{
             test: /\.jsx?$|react\.js/,
-            loaders: ['react-hot', 'jsx'],
+            loaders: ['jsx'],
             include: path.join(__dirname, 'assets')
           }]
         }
